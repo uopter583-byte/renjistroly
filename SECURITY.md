@@ -9,7 +9,7 @@
 
 ## 漏洞报告
 
-请发邮件至 security@renjistroly.dev（占位）。
+请发邮件至 uopter583@gmail.com（占位）。
 不要公开披露安全漏洞。
 
 ## 安全措施
