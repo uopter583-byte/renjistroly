@@ -1,8 +1,10 @@
 ---
 name: Bug 报告
 about: 报告一个问题来帮助我们改进
-title: '[Bug] '
+title: "[Bug] "
 labels: bug
+assignees: ''
+
 ---
 
 ## 描述

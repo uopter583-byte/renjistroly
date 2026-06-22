@@ -1,8 +1,10 @@
 ---
 name: 功能请求
 about: 为这个项目提出一个想法
-title: '[Feature] '
+title: "[Feature] "
 labels: enhancement
+assignees: ''
+
 ---
 
 ## 问题描述
