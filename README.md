@@ -4,13 +4,22 @@ RenJistroly is a macOS AI operating assistant. It combines chat, voice input, sc
 
 The project is written in Swift and targets Apple Silicon Macs.
 
+## Why RenJistroly
+
+RenJistroly is built to make **Computer Use** feel tangible on macOS: the model can see useful desktop context, understand the active app, reason about the current screen, and then help operate real UI through guarded local tools.
+
+It is model-provider friendly. You can connect DeepSeek and other OpenAI-compatible LLM endpoints, route tasks through Claude Code CLI, or adapt the provider layer for local and cloud models. The app is not locked to a single model vendor; the desktop control layer, context layer, MCP tools, and UI are separated from the model backend.
+
+RenJistroly can also be pulled into agent workflows directly. Developers can clone this repository, run the macOS app, or build the `RenJistrolyMCP` server and connect it from compatible clients such as Claude Code, OpenClaw, Hermes, or other MCP-capable agent environments.
+
 ## What It Does
 
 - Reads desktop context from Accessibility, active windows, focused controls, Finder, browser state, project files, git state, and optional screen OCR.
 - Controls macOS apps through Accessibility, AppleScript, keyboard shortcuts, mouse actions, and app-specific drivers.
 - Accepts typed prompts, push-to-talk voice input, and continuous voice conversation.
-- Supports multiple model backends, including Claude Code CLI, OpenAI-compatible providers, DeepSeek-style endpoints, and local/provider routing.
+- Supports multiple model backends, including DeepSeek-style OpenAI-compatible endpoints, Claude Code CLI, cloud providers, and local/provider routing.
 - Exposes a local MCP server with tools for app control, code tasks, shell execution, OCR, browser automation, file operations, and workflow actions.
+- Lets compatible agent clients pull the project and connect to the local MCP/app-control layer instead of reimplementing macOS Computer Use from scratch.
 - Adds safety layers: command allowlists, risk scoring, local-only policy, sensitive-app protection, confirmation flows, audit records, and rollback-oriented action results.
 - Packages as a Developer ID signed and notarized macOS app.
 
