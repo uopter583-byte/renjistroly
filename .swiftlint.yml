@@ -1,0 +1,69 @@
+# RenJistroly SwiftLint Configuration
+# Reference: https://realm.github.io/SwiftLint/
+
+disabled_rules:
+  # Line length — 120 default is too strict for code with descriptive names
+  - line_length
+  # File length — many files exceed the default 400 lines
+  - file_length
+  # Type body length — some types are naturally large (e.g., tool registries)
+  - type_body_length
+  # Function body length — some MCP tool functions are inherently long
+  - function_body_length
+  # Identifier name — ban on short names is too aggressive
+  - identifier_name
+  # Type name — overly strict on naming conventions
+  - type_name
+  # Force unwrapping — disabled at module level; individual sites marked with
+  # swiftlint:disable:next force_unwrapping if truly unavoidable
+  - force_unwrapping
+  # Cyclomatic complexity — some router/dispatch functions are complex by nature
+  - cyclomatic_complexity
+  # Redundant string enum value — Swift 6 convention prefers explicit values
+  - redundant_string_enum_value
+  # Vertical whitespace — too aggressive with closing braces
+  - vertical_whitespace_closing_braces
+  # Opening brace — conflicts with SwiftFormat allman false
+  - opening_brace
+
+opt_in_rules:
+  # Force cast — prefer `as!` over forced downcast with clear intent
+  - force_cast
+  # Force try — prefer `try!` when failure is a programming error
+  - force_try
+  # Nesting — flag deeply nested types that could be extracted
+  - nesting
+  # Empty count — prefer `isEmpty` over `count == 0`
+  - empty_count
+  # Empty string — prefer `isEmpty` over `== ""`
+  - empty_string
+  # Comma inheritance — `class, SomeProtocol` not `class,SomeProtocol`
+  - comma_inheritance
+  # Unneeded parentheses — remove redundant parens in if/switch
+  - unneeded_parentheses_in_closure_argument
+  # Prefer `AnyObject` over `class` for protocols
+  - anyobject_protocol
+  # Prefer `#fileID` over `#file` (Swift 5.8+)
+  - file_types_order
+
+# Paths to exclude
+excluded:
+  - .build
+  - .claude
+  - Scripts
+
+# Per-directory configuration overrides
+# Tests/: relax some rules to avoid noise
+analyzer_rules: []
+
+reporter: "xcode"
+
+custom_rules:
+  print_log:
+    name: "print/log"
+    regex: "(print|debugPrint|dump)\\("
+    message: "Use OSLog instead of print/dump"
+    severity: warning
+
+# Config for test targets (relaxed rules)
+# Tests/ directories: no line limit restrictions, allow longer test names

@@ -1,0 +1,58 @@
+.build/
+.build.bak/
+.codebase-memory/
+.venv_nemo/
+.build-old-*/
+.DS_Store
+*.app
+*.xcworkspace
+*.xcuserdata
+DerivedData/
+*.dmg
+*.ipa
+
+# Build artifacts
+build/
+.build_old/
+__pycache__/
+*.pyc
+*.certSigningRequest
+*.p12
+*.cer
+*.pem
+*.key
+
+# Vendored dependencies (use SPM)
+_vendored/
+
+# Local reference checkouts and generated test reports
+_references/
+test-results/
+
+# Developer tools (cloned separately, not part of the project)
+_tools/
+
+# Embedded frameworks (rebuilt from source)
+Frameworks/
+
+# Optional local ASR model payloads are distributed with release builds,
+# not committed to the source repository.
+Sources/RenJistrolySystemBridge/Resources/NemotronASR/*
+!Sources/RenJistrolySystemBridge/Resources/NemotronASR/README.md
+
+# Runtime logs
+stability_logs/
+
+# Claude Code ephemeral worktrees
+.claude/worktrees/
+
+# Config backups
+.config-backups/
+
+# Understand-Anything knowledge graph
+.understand-anything/
+
+# Local agent/tool configuration
+.agents/
+.claude/
+.mcp.json

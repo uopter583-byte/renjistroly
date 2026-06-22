@@ -1,0 +1,46 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1024 1024" width="1024" height="1024">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#FF3B30"/>
+      <stop offset="100%" stop-color="#007AFF"/>
+    </linearGradient>
+    <linearGradient id="rGrad" x1="0.2" y1="0" x2="0.8" y2="1">
+      <stop offset="0%" stop-color="#FFFFFF"/>
+      <stop offset="100%" stop-color="#DDDDDD"/>
+    </linearGradient>
+    <filter id="shadow">
+      <feDropShadow dx="0" dy="4" stdDeviation="12" flood-color="#000" flood-opacity="0.3"/>
+    </filter>
+  </defs>
+
+  <!-- Rounded rect background with gradient -->
+  <rect x="32" y="32" width="960" height="960" rx="192" ry="192" fill="url(#bg)"/>
+
+  <!-- Inner glow ring -->
+  <rect x="32" y="32" width="960" height="960" rx="192" ry="192" fill="none" stroke="rgba(255,255,255,0.15)" stroke-width="6"/>
+
+  <!-- Stylized "R" letter -->
+  <g fill="url(#rGrad)" filter="url(#shadow)">
+    <!-- Left vertical stem -->
+    <rect x="290" y="220" width="110" height="584" rx="40"/>
+    <!-- Right curved arch (using path for the curved top) -->
+    <path d="M400 220
+             C400 220, 600 180, 670 250
+             C740 320, 740 440, 670 510
+             C620 560, 570 560, 525 540
+             L560 510
+             C610 540, 650 540, 680 500
+             C730 440, 730 340, 680 290
+             C630 240, 400 275, 400 275
+             Z"/>
+    <!-- Diagonal leg -->
+    <rect x="550" y="560" width="100" height="48" rx="24" transform="rotate(-35, 600, 584)"/>
+  </g>
+
+  <!-- Robot/assistant face accent - two small dot eyes on upper-right of R -->
+  <circle cx="530" cy="370" r="18" fill="#FFD60A" opacity="0.9"/>
+  <circle cx="640" cy="370" r="18" fill="#FFD60A" opacity="0.9"/>
+
+  <!-- Bottom highlight reflection -->
+  <ellipse cx="512" cy="920" rx="320" ry="40" fill="rgba(255,255,255,0.08)"/>
+</svg>

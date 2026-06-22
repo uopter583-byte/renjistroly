@@ -1,0 +1,3 @@
+# Keep generated model payloads out of the source repository.
+# If a future release needs repository-hosted model files, add explicit
+# Git LFS patterns here before staging those assets.

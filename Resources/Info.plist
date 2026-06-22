@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>CFBundleDisplayName</key>
+	<string>RenJistroly</string>
+	<key>CFBundleExecutable</key>
+	<string>RenJistroly</string>
+	<key>CFBundleIdentifier</key>
+	<string>com.renjistroly.app</string>
+	<key>CFBundleName</key>
+	<string>RenJistroly</string>
+	<key>CFBundlePackageType</key>
+	<string>APPL</string>
+	<key>CFBundleShortVersionString</key>
+	<string>0.2.0</string>
+	<key>CFBundleVersion</key>
+	<string>1</string>
+	<key>LSMinimumSystemVersion</key>
+	<string>15.0</string>
+	<key>LSUIElement</key>
+	<false/>
+	<key>NSAccessibilityUsageDescription</key>
+	<string>RenJistroly needs Accessibility access to help you control and automate your Mac.</string>
+	<key>NSAppleEventsUsageDescription</key>
+	<string>RenJistroly uses Apple Events to automate applications on your behalf.</string>
+	<key>NSMicrophoneUsageDescription</key>
+	<string>RenJistroly uses the microphone for voice input and push-to-talk commands.</string>
+	<key>NSScreenCaptureUsageDescription</key>
+	<string>RenJistroly captures screen content to provide context-aware assistance.</string>
+	<key>NSSpeechRecognitionUsageDescription</key>
+	<string>RenJistroly uses speech recognition to convert your voice to text locally on device.</string>
+</dict>
+</plist>

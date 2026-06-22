@@ -1,0 +1,7 @@
+--swiftversion 6.0
+--indent 4
+--allman false
+--comments ignore
+--stripunusedargs closure-only
+--patternlet inline
+--redundanttype infer

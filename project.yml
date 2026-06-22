@@ -1,0 +1,352 @@
+name: RenJistroly
+options:
+  bundleIdPrefix: com.renjistroly
+  deploymentTarget:
+    macOS: "15.0"
+  xcodeVersion: "16.0"
+  createIntermediateGroups: true
+  usesTabs: false
+  indentWidth: 4
+  tabWidth: 4
+
+settings:
+  base:
+    SWIFT_VERSION: "6.0"
+    SWIFT_STRICT_CONCURRENCY: complete
+    MACOSX_DEPLOYMENT_TARGET: "15.0"
+    SWIFT_ACTIVE_COMPILATION_CONDITIONS: "$(inherited)"
+  configs:
+    Debug:
+      SWIFT_ACTIVE_COMPILATION_CONDITIONS: DEBUG $(inherited)
+    Release:
+      SWIFT_COMPILATION_MODE: wholemodule
+      SWIFT_OPTIMIZATION_LEVEL: -O
+
+targets:
+  # MARK: - C Wrapper for onnxruntime (modulemap-based static library)
+
+  COrt:
+    type: static-library
+    platform: macOS
+    sources:
+      - Sources/COrt
+    settings:
+      PRODUCT_NAME: COrt
+      DEFINES_MODULE: YES
+      MODULEMAP_FILE: "$(SRCROOT)/Sources/COrt/module.modulemap"
+      HEADER_SEARCH_PATHS: /opt/homebrew/include
+      SKIP_INSTALL: YES
+
+  # MARK: - XPC Shared Protocol (no deps)
+
+  RenJistrolyXPC:
+    type: framework
+    platform: macOS
+    sources:
+      - Sources/RenJistrolyXPC
+    settings:
+      PRODUCT_BUNDLE_IDENTIFIER: com.renjistroly.xpc
+      SKIP_INSTALL: YES
+
+  # MARK: - Executables
+
+  RenJistroly:
+    type: application
+    platform: macOS
+    sources:
+      - Sources/RenJistrolyApp
+    dependencies:
+      - target: RenJistrolyUI
+      - target: RenJistrolyConversation
+      - target: RenJistrolyIntelligence
+      - target: RenJistrolyCapability
+      - target: RenJistrolySystemBridge
+      - target: RenJistrolyModels
+      - target: RenJistrolyEnterprise
+      - target: RenJistrolyProductIdentity
+      - target: RenJistrolyXPC
+    settings:
+      PRODUCT_BUNDLE_IDENTIFIER: com.renjistroly.app
+      # onnxruntime linking — propagated from COrt via SystemBridge
+      OTHER_LDFLAGS: $(inherited) -lonnxruntime
+      LIBRARY_SEARCH_PATHS: $(inherited) /opt/homebrew/lib
+      INFOPLIST_FILE: RenJistroly/Info.plist
+      GENERATE_INFOPLIST_FILE: YES
+    info:
+      path: null
+      properties:
+        LSUIElement: YES
+        NSHumanReadableCopyright: ""
+        CFBundleShortVersionString: "1.0"
+        CFBundleVersion: "1"
+
+  RenJistrolyBridge:
+    type: tool
+    platform: macOS
+    sources:
+      - Sources/RenJistrolyBridge
+    dependencies:
+      - target: RenJistrolyModels
+      - target: RenJistrolySystemBridge
+    settings:
+      PRODUCT_BUNDLE_IDENTIFIER: com.renjistroly.bridge
+
+  RenJistrolyGate:
+    type: tool
+    platform: macOS
+    sources:
+      - Sources/RenJistrolyGate
+    settings:
+      PRODUCT_BUNDLE_IDENTIFIER: com.renjistroly.gate
+
+  RenJistrolyMCP:
+    type: tool
+    platform: macOS
+    sources:
+      - Sources/RenJistrolyMCP
+    dependencies:
+      - target: RenJistrolyCapability
+      - target: RenJistrolySystemBridge
+      - target: RenJistrolyModels
+    settings:
+      PRODUCT_BUNDLE_IDENTIFIER: com.renjistroly.mcp
+      OTHER_LDFLAGS: $(inherited) -lonnxruntime
+      LIBRARY_SEARCH_PATHS: $(inherited) /opt/homebrew/lib
+
+  RenJistrolyHelper:
+    type: tool
+    platform: macOS
+    sources:
+      - Sources/RenJistrolyHelper
+    dependencies:
+      - target: RenJistrolyXPC
+    settings:
+      PRODUCT_BUNDLE_IDENTIFIER: com.renjistroly.helper
+      OTHER_LDFLAGS: >
+        $(inherited)
+        -Xlinker -sectcreate -Xlinker __TEXT -Xlinker __launchd_plist
+        -Xlinker $(SRCROOT)/HelperConfig/com.renjistroly.helper.plist
+        -Xlinker -sectcreate -Xlinker __TEXT -Xlinker __info_plist
+        -Xlinker $(SRCROOT)/HelperConfig/Info.plist
+
+  # MARK: - Library Targets
+
+  RenJistrolyModels:
+    type: framework
+    platform: macOS
+    sources:
+      - Sources/RenJistrolyModels
+    settings:
+      PRODUCT_BUNDLE_IDENTIFIER: com.renjistroly.models
+      SKIP_INSTALL: YES
+
+  RenJistrolyEnterprise:
+    type: framework
+    platform: macOS
+    sources:
+      - Sources/RenJistrolyEnterprise
+    dependencies:
+      - target: RenJistrolyModels
+    settings:
+      PRODUCT_BUNDLE_IDENTIFIER: com.renjistroly.enterprise
+      SKIP_INSTALL: YES
+
+  RenJistrolyProductIdentity:
+    type: framework
+    platform: macOS
+    sources:
+      - Sources/RenJistrolyProductIdentity
+    dependencies:
+      - target: RenJistrolyModels
+    settings:
+      PRODUCT_BUNDLE_IDENTIFIER: com.renjistroly.product-identity
+      SKIP_INSTALL: YES
+
+  RenJistrolySystemBridge:
+    type: framework
+    platform: macOS
+    sources:
+      - Sources/RenJistrolySystemBridge
+      - path: Sources/RenJistrolySystemBridge/Resources
+        type: folder
+    dependencies:
+      - target: COrt
+      - target: RenJistrolyModels
+      - target: RenJistrolyXPC
+    settings:
+      PRODUCT_BUNDLE_IDENTIFIER: com.renjistroly.system-bridge
+      SKIP_INSTALL: YES
+      HEADER_SEARCH_PATHS: /opt/homebrew/include
+      OTHER_LDFLAGS: $(inherited) -lonnxruntime
+      LIBRARY_SEARCH_PATHS: /opt/homebrew/lib
+
+  RenJistrolyIntelligence:
+    type: framework
+    platform: macOS
+    sources:
+      - Sources/RenJistrolyIntelligence
+    dependencies:
+      - target: RenJistrolyModels
+      - target: RenJistrolySystemBridge
+    settings:
+      PRODUCT_BUNDLE_IDENTIFIER: com.renjistroly.intelligence
+      SKIP_INSTALL: YES
+
+  RenJistrolyCapability:
+    type: framework
+    platform: macOS
+    sources:
+      - Sources/RenJistrolyCapability
+    dependencies:
+      - target: RenJistrolySystemBridge
+      - target: RenJistrolyModels
+    settings:
+      PRODUCT_BUNDLE_IDENTIFIER: com.renjistroly.capability
+      SKIP_INSTALL: YES
+
+  RenJistrolyConversation:
+    type: framework
+    platform: macOS
+    sources:
+      - Sources/RenJistrolyConversation
+    dependencies:
+      - target: RenJistrolyModels
+      - target: RenJistrolyIntelligence
+      - target: RenJistrolyCapability
+      - target: RenJistrolyProductIdentity
+    settings:
+      PRODUCT_BUNDLE_IDENTIFIER: com.renjistroly.conversation
+      SKIP_INSTALL: YES
+
+  RenJistrolyUI:
+    type: framework
+    platform: macOS
+    sources:
+      - Sources/RenJistrolyUI
+    dependencies:
+      - target: RenJistrolyModels
+      - target: RenJistrolyConversation
+      - target: RenJistrolyIntelligence
+      - target: RenJistrolyCapability
+      - target: RenJistrolySystemBridge
+    settings:
+      PRODUCT_BUNDLE_IDENTIFIER: com.renjistroly.ui
+      SKIP_INSTALL: YES
+
+  # MARK: - Test Targets
+
+  RenJistrolyModelsTests:
+    type: unit-test-bundle
+    platform: macOS
+    sources:
+      - Tests/RenJistrolyModelsTests
+    dependencies:
+      - target: RenJistrolyModels
+    settings:
+      TEST_TARGET_NAME: RenJistrolyModels
+
+  RenJistrolySystemBridgeTests:
+    type: unit-test-bundle
+    platform: macOS
+    sources:
+      - Tests/RenJistrolySystemBridgeTests
+    dependencies:
+      - target: RenJistrolySystemBridge
+    settings:
+      TEST_TARGET_NAME: RenJistrolySystemBridge
+
+  RenJistrolyIntelligenceTests:
+    type: unit-test-bundle
+    platform: macOS
+    sources:
+      - Tests/RenJistrolyIntelligenceTests
+    dependencies:
+      - target: RenJistrolyIntelligence
+    settings:
+      TEST_TARGET_NAME: RenJistrolyIntelligence
+
+  RenJistrolyCapabilityTests:
+    type: unit-test-bundle
+    platform: macOS
+    sources:
+      - Tests/RenJistrolyCapabilityTests
+    dependencies:
+      - target: RenJistrolyCapability
+    settings:
+      TEST_TARGET_NAME: RenJistrolyCapability
+
+  RenJistrolyConversationTests:
+    type: unit-test-bundle
+    platform: macOS
+    sources:
+      - Tests/RenJistrolyConversationTests
+    dependencies:
+      - target: RenJistrolyConversation
+    settings:
+      TEST_TARGET_NAME: RenJistrolyConversation
+
+  RenJistrolyTests:
+    type: unit-test-bundle
+    platform: macOS
+    sources:
+      - Tests/RenJistrolyTests
+    dependencies:
+      - target: RenJistrolyModels
+      - target: RenJistrolyEnterprise
+      - target: RenJistrolyProductIdentity
+      - target: RenJistrolySystemBridge
+    settings:
+      TEST_TARGET_NAME: RenJistroly
+
+  SecurityTests:
+    type: unit-test-bundle
+    platform: macOS
+    sources:
+      - Tests/SecurityTests
+    dependencies:
+      - target: RenJistrolyModels
+      - target: RenJistrolySystemBridge
+      - target: RenJistrolyProductIdentity
+      - target: RenJistrolyEnterprise
+      - target: RenJistrolyCapability
+    settings:
+      TEST_TARGET_NAME: SecurityTests
+
+  LongRunningTests:
+    type: unit-test-bundle
+    platform: macOS
+    sources:
+      - Tests/LongRunningTests
+    dependencies:
+      - target: RenJistrolyModels
+      - target: RenJistrolySystemBridge
+      - target: RenJistrolyEnterprise
+      - target: RenJistrolyProductIdentity
+    settings:
+      TEST_TARGET_NAME: LongRunningTests
+
+  PerformanceTests:
+    type: unit-test-bundle
+    platform: macOS
+    sources:
+      - Tests/PerformanceTests
+    dependencies:
+      - target: RenJistrolyModels
+      - target: RenJistrolySystemBridge
+      - target: RenJistrolyEnterprise
+      - target: RenJistrolyProductIdentity
+    settings:
+      TEST_TARGET_NAME: PerformanceTests
+
+  RegressionTests:
+    type: unit-test-bundle
+    platform: macOS
+    sources:
+      - Tests/RegressionTests
+    dependencies:
+      - target: RenJistrolyModels
+      - target: RenJistrolyEnterprise
+      - target: RenJistrolyProductIdentity
+      - target: RenJistrolySystemBridge
+    settings:
+      TEST_TARGET_NAME: RegressionTests
