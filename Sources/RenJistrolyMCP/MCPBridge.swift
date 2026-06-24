@@ -78,7 +78,7 @@ struct RenJistrolyMCPServer {
 
         case "tools/list":
             let tools = await client.availableTools
-            let mcpTools = tools.map(Self.toolDefinitionToMCP)
+            let mcpTools = (tools + voiceToolDefinitions).map(Self.toolDefinitionToMCP)
             respond(id: id, result: ["tools": mcpTools])
 
         case "tools/call":
@@ -149,6 +149,24 @@ struct RenJistrolyMCPServer {
     }
 
     // MARK: - Tool Definition → MCP format
+
+    static nonisolated let voiceToolDefinitions: [ToolDefinition] = [
+        ToolDefinition(
+            name: "voice_listen",
+            description: "Listen for the latest RenJistroly voice transcript through the shared voice gate.",
+            parameters: [
+                .init(name: "prompt", type: .string, description: "Optional prompt shown to the voice listener.", required: false),
+                .init(name: "timeout_ms", type: .number, description: "Maximum time to wait for speech in milliseconds.", required: false),
+            ]
+        ),
+        ToolDefinition(
+            name: "voice_speak",
+            description: "Send text to the RenJistroly voice reply gate for speech output.",
+            parameters: [
+                .init(name: "text", type: .string, description: "Text to speak."),
+            ]
+        ),
+    ]
 
     static func toolDefinitionToMCP(_ def: ToolDefinition) -> [String: Any] {
         var properties: [String: Any] = [:]
