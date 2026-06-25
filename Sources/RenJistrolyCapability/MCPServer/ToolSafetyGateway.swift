@@ -83,6 +83,7 @@ public actor ToolSafetyGateway {
 
     private var sensitivePaths: [String] {
         let home = NSHomeDirectory()
+        let bundlePath = Bundle.main.bundlePath
         return [
             "\(home)/.ssh",
             "\(home)/.aws",
@@ -94,12 +95,21 @@ public actor ToolSafetyGateway {
             "\(home)/.env",
             "\(home)/Library/Keychains",
             "\(home)/Library/Application Support",
+            // System-level sensitive paths (using symlink-resolved real paths)
+            "/private/etc",
+            "/usr/bin",
+            "/usr/sbin",
+            "/System",
+            "/private/var",
+            "/dev",
+            // Current process bundle path
+            bundlePath,
         ]
     }
 
     private func isSensitiveWritePath(_ path: String) -> Bool {
         let expanded = (path as NSString).expandingTildeInPath
-        let resolved = URL(fileURLWithPath: expanded).standardized.path
+        let resolved = URL(fileURLWithPath: expanded).resolvingSymlinksInPath().path
         return sensitivePaths.contains { resolved == $0 || resolved.hasPrefix($0 + "/") }
     }
 
@@ -193,6 +203,38 @@ public actor ToolSafetyGateway {
                             isError: true
                         )
                     }
+                }
+            }
+            return nil
+        }
+
+        // 检查 delete_file 的路径保护
+        if request.name == "delete_file" {
+            guard let path = request.arguments["path"], !path.isEmpty else { return nil }
+            if isSensitiveWritePath(path) {
+                os_log(.error, "[ToolSafety] 拦截敏感路径删除: %{public}s", path)
+                return ToolCallResult(
+                    id: request.id,
+                    output: "⚠️ 安全限制：禁止删除系统配置/密钥目录。如需删除，请手动在 Finder 中操作。",
+                    isError: true
+                )
+            }
+            return nil
+        }
+
+        // 检查 batch_delete 的路径保护
+        if request.name == "batch_delete" {
+            guard let jsonStr = request.arguments["paths"], !jsonStr.isEmpty,
+                  let data = jsonStr.data(using: .utf8),
+                  let paths = try? JSONDecoder().decode([String].self, from: data) else { return nil }
+            for path in paths {
+                if isSensitiveWritePath(path) {
+                    os_log(.error, "[ToolSafety] 拦截批量删除中的敏感路径: %{public}s", path)
+                    return ToolCallResult(
+                        id: request.id,
+                        output: "⚠️ 安全限制：批量删除中包含系统配置/密钥路径（\(path)），已阻止执行。",
+                        isError: true
+                    )
                 }
             }
             return nil
