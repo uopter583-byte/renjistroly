@@ -15,6 +15,11 @@ import OSLog
 /// ```
 public actor ScreenStreamProvider {
 
+    /// Minimum scale factor (quarter resolution).
+    private static let minScale: CGFloat = 0.25
+    /// Maximum scale factor (full resolution).
+    private static let maxScale: CGFloat = 1.0
+
     public enum StreamError: LocalizedError {
         case noDisplayAvailable
         case alreadyRunning
@@ -44,6 +49,7 @@ public actor ScreenStreamProvider {
     private var lastFrameAt: Date?
     private var streamFPS: Int = 4
     private var streamExcludeOwnWindows: Bool = true
+    private var streamScaleFactor: CGFloat = 0.5
     private var healthCheckTask: Task<Void, Never>?
 
     /// Async stream of captured frames. Subscribe before calling `startStream`.
@@ -66,11 +72,14 @@ public actor ScreenStreamProvider {
     /// - Parameters:
     ///   - fps: Target frames per second (clamped 1-30). Default 4 is a good balance.
     ///   - excludeOwnWindows: If true, filters out RenJistroly's own windows from the capture.
-    public func startStream(fps: Int = 4, excludeOwnWindows: Bool = true) async throws {
+    ///   - scaleFactor: Downscaling factor applied to the capture resolution (clamped 0.25-1.0).
+    ///                  Default 0.5 halves the pixel dimensions for significant bandwidth savings.
+    public func startStream(fps: Int = 4, excludeOwnWindows: Bool = true, scaleFactor: CGFloat = 0.5) async throws {
         guard !isStreaming else { throw StreamError.alreadyRunning }
 
         streamFPS = fps
         streamExcludeOwnWindows = excludeOwnWindows
+        streamScaleFactor = clampScaleFactor(scaleFactor)
 
         let content = try await SCShareableContent.excludingDesktopWindows(false, onScreenWindowsOnly: true)
         guard let display = content.displays.first else {
@@ -94,8 +103,8 @@ public actor ScreenStreamProvider {
         }
 
         let config = SCStreamConfiguration()
-        config.width = display.width
-        config.height = display.height
+        config.width = Int(ceil(CGFloat(display.width) * streamScaleFactor))
+        config.height = Int(ceil(CGFloat(display.height) * streamScaleFactor))
         config.pixelFormat = kCVPixelFormatType_32BGRA
         config.queueDepth = 2
         config.minimumFrameInterval = CMTime(value: 1, timescale: CMTimeScale(max(1, min(fps, 30))))
@@ -186,12 +195,18 @@ public actor ScreenStreamProvider {
     private func restartStream() async {
         let fps = streamFPS
         let excludeOwn = streamExcludeOwnWindows
+        let scaleFactor = streamScaleFactor
         await stopStream()
         do {
-            try await startStream(fps: fps, excludeOwnWindows: excludeOwn)
+            try await startStream(fps: fps, excludeOwnWindows: excludeOwn, scaleFactor: scaleFactor)
         } catch {
             os_log(.fault, log: .default, "[ScreenStream] 重启失败: %{public}@", error.localizedDescription)
         }
+    }
+
+    /// Clamp the scale factor to the allowed range.
+    private func clampScaleFactor(_ value: CGFloat) -> CGFloat {
+        min(Self.maxScale, max(Self.minScale, value))
     }
 }
 

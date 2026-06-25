@@ -16,9 +16,15 @@ public actor ScreenCaptureBridge {
         }
     }
 
+    /// Minimum scale factor (quarter resolution).
+    private static let minScale: CGFloat = 0.25
+    /// Maximum scale factor (full resolution).
+    private static let maxScale: CGFloat = 1.0
+
     public func captureScreen(
         display: SCDisplay? = nil,
-        excludingWindowIDs: [CGWindowID] = []
+        excludingWindowIDs: [CGWindowID] = [],
+        scaleFactor: CGFloat = 1.0
     ) async throws -> Data {
         let content = try await SCShareableContent.excludingDesktopWindows(false, onScreenWindowsOnly: true)
         availableContent = content
@@ -28,11 +34,13 @@ public actor ScreenCaptureBridge {
             throw ScreenCaptureError.noDisplayAvailable
         }
 
+        let clampedFactor = min(Self.maxScale, max(Self.minScale, scaleFactor))
+
         let excludedWindows = content.windows.filter { excludingWindowIDs.contains($0.windowID) }
         let filter = SCContentFilter(display: targetDisplay, excludingWindows: excludedWindows)
         let config = SCStreamConfiguration()
-        config.width = Int(targetDisplay.width)
-        config.height = Int(targetDisplay.height)
+        config.width = Int(ceil(CGFloat(targetDisplay.width) * clampedFactor))
+        config.height = Int(ceil(CGFloat(targetDisplay.height) * clampedFactor))
         config.scalesToFit = false
         config.pixelFormat = kCVPixelFormatType_32BGRA
         config.queueDepth = 1
