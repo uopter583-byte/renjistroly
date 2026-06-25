@@ -344,6 +344,20 @@ public final class ChromeDevToolsSession: Sendable {
         try await send(method: "Page.getNavigationHistory")
     }
 
+    /// Get the current page URL from navigation history (no JS evaluation needed).
+    public func getCurrentURL() async throws -> String {
+        let raw = try await getNavigationHistory()
+        guard let result = Self.extractDict(from: raw, keyPath: "result"),
+              let currentIndex = result["currentIndex"] as? Int,
+              let entries = result["entries"] as? [[String: Any]],
+              currentIndex >= 0, currentIndex < entries.count,
+              let url = entries[currentIndex]["url"] as? String,
+              !url.isEmpty else {
+            throw CDPError.jsonError("failed to extract current URL from navigation history")
+        }
+        return url
+    }
+
     /// Add a script to evaluate on every document load.
     public func addScriptToEvaluateOnLoad(source: String) async throws -> String {
         let srcEncoded = try JSONEncoder().encode(source)

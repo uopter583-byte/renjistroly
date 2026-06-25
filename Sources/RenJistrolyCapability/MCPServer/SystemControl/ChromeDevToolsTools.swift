@@ -88,6 +88,12 @@ public struct CDPEvaluateTool: MCPTool {
         guard let session = await CDPSessionManager.shared.getSession(), session.isConnected else {
             return ToolCallResult(id: UUID().uuidString, output: "CDP 未连接，请先使用 cdp_connect", isError: true)
         }
+        // Domain allowlist guard
+        do {
+            try await CDPDomainAllowlist.guardDomainAllowed(session: session)
+        } catch {
+            return ToolCallResult(id: UUID().uuidString, output: error.localizedDescription, isError: true)
+        }
         do {
             let result = try await session.evaluate(expression: expr)
             return ToolCallResult(id: UUID().uuidString, output: result)
@@ -163,13 +169,19 @@ public struct CDPGetCookiesTool: MCPTool {
         description: "获取 Chrome 当前页面的所有 Cookie (Network.getCookies)，返回包含 cookies 数组的 JSON",
         parameters: []
     )
-    public var riskLevel: ToolRiskLevel { .low }
+    public var riskLevel: ToolRiskLevel { .high }
 
     public init() {}
 
     public func execute(arguments: [String: String]) async throws -> ToolCallResult {
         guard let session = await CDPSessionManager.shared.getSession(), session.isConnected else {
             return ToolCallResult(id: UUID().uuidString, output: "CDP 未连接，请先使用 cdp_connect", isError: true)
+        }
+        // Domain allowlist guard
+        do {
+            try await CDPDomainAllowlist.guardDomainAllowed(session: session)
+        } catch {
+            return ToolCallResult(id: UUID().uuidString, output: error.localizedDescription, isError: true)
         }
         do {
             let result = try await session.getCookies()
@@ -206,6 +218,12 @@ public struct CDPSetCookieTool: MCPTool {
         let domain = arguments["domain"]
         guard let session = await CDPSessionManager.shared.getSession(), session.isConnected else {
             return ToolCallResult(id: UUID().uuidString, output: "CDP 未连接，请先使用 cdp_connect", isError: true)
+        }
+        // Domain allowlist guard
+        do {
+            try await CDPDomainAllowlist.guardDomainAllowed(session: session)
+        } catch {
+            return ToolCallResult(id: UUID().uuidString, output: error.localizedDescription, isError: true)
         }
         do {
             let result = try await session.setCookie(name: name, value: value, domain: domain)
@@ -463,6 +481,12 @@ public struct CDPFillTool: MCPTool {
         guard let session = await CDPSessionManager.shared.getSession(), session.isConnected else {
             return ToolCallResult(id: UUID().uuidString, output: "CDP 未连接，请先使用 cdp_connect", isError: true)
         }
+        // Domain allowlist guard (fill uses evaluate internally)
+        do {
+            try await CDPDomainAllowlist.guardDomainAllowed(session: session)
+        } catch {
+            return ToolCallResult(id: UUID().uuidString, output: error.localizedDescription, isError: true)
+        }
         do {
             let escaped = value.replacingOccurrences(of: "\\", with: "\\\\").replacingOccurrences(of: "'", with: "\\'")
             let result = try await session.evaluate(expression: """
@@ -514,6 +538,12 @@ public struct CDPSubmitTool: MCPTool {
         }
         guard let session = await CDPSessionManager.shared.getSession(), session.isConnected else {
             return ToolCallResult(id: UUID().uuidString, output: "CDP 未连接，请先使用 cdp_connect", isError: true)
+        }
+        // Domain allowlist guard (submit uses evaluate internally)
+        do {
+            try await CDPDomainAllowlist.guardDomainAllowed(session: session)
+        } catch {
+            return ToolCallResult(id: UUID().uuidString, output: error.localizedDescription, isError: true)
         }
         do {
             let result = try await session.evaluate(expression: """
