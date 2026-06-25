@@ -57,7 +57,7 @@ func testOCREngineResolverWhenAvailable() {
     XCTAssertTrue(resolver.resolve(preferred: .ppocrV6) == .ppocrV6)
     XCTAssertTrue(resolver.resolve(preferred: .both) == .both)
     XCTAssertTrue(resolver.resolve(preferred: .appleVision) == .appleVision)
-    XCTAssertTrue(resolver.bestAvailable == .both)
+    XCTAssertTrue(resolver.bestAvailable == .appleVision)
 }
 
 func testCTCDecoderEmptyLogits() {
@@ -232,7 +232,7 @@ func testOCREngineResolverE2E() {
     print("  [Resolver] PPOCRv6 available: \(ppocrAvailable)")
     let resolver = OCREngineResolver(ppocrAvailable: ppocrAvailable)
     let best = resolver.bestAvailable
-    XCTAssertTrue(best == (ppocrAvailable ? .both : .appleVision))
+    XCTAssertTrue(best == .appleVision)
     XCTAssertTrue(resolver.resolve(preferred: .ppocrV6) == (ppocrAvailable ? .ppocrV6 : .appleVision))
     print("  [Resolver] best=\(best)")
 }

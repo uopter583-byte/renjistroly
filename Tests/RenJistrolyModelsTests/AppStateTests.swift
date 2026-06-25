@@ -53,7 +53,7 @@ func testAppStateDefaultValues() {
     XCTAssertTrue(state.isOnline == true)
     XCTAssertTrue(state.isStreaming == false)
     XCTAssertTrue(state.devMode == .disabled)
-    XCTAssertTrue(state.ocrEngine == .both)
+    XCTAssertTrue(state.ocrEngine == .appleVision)
 }
 
 @MainActor
