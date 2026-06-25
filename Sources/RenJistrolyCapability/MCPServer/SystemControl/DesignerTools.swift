@@ -73,7 +73,7 @@ public struct FigmaInspectTool: MCPTool {
         do {
             let ownIDs = (try? await screen.getOwnWindowIDs()) ?? []
             let pngData = try await screen.captureScreen(excludingWindowIDs: ownIDs)
-            let ocrResults = try await OCRService.shared.recognize(in: pngData, preferredEngine: .both)
+            let ocrResults = try await OCRService.shared.recognize(in: pngData, preferredEngine: .appleVision)
             let texts = ocrResults.filter { $0.confidence >= 0.25 && !$0.text.isEmpty }
 
             output += "\n【Figma 画布 OSCR 识别】"
@@ -366,7 +366,7 @@ public struct PixelMeasureTool: MCPTool {
         do {
             let ownIDs = (try? await screen.getOwnWindowIDs()) ?? []
             let pngData = try await screen.captureScreen(excludingWindowIDs: ownIDs)
-            let ocrResults = try await OCRService.shared.recognize(in: pngData, preferredEngine: .both)
+            let ocrResults = try await OCRService.shared.recognize(in: pngData, preferredEngine: .appleVision)
             let filtered = ocrResults.filter { $0.confidence >= 0.3 && !$0.text.isEmpty }
 
             if !filtered.isEmpty {
@@ -676,7 +676,7 @@ public struct ScreenshotAnnotateTool: MCPTool {
         do {
             let ownIDs = (try? await screen.getOwnWindowIDs()) ?? []
             let pngData = try await screen.captureScreen(excludingWindowIDs: ownIDs)
-            let ocrResults = try await OCRService.shared.recognize(in: pngData, preferredEngine: .both)
+            let ocrResults = try await OCRService.shared.recognize(in: pngData, preferredEngine: .appleVision)
             let filtered = ocrResults.filter { $0.confidence >= 0.3 && !$0.text.isEmpty }
 
             output += "\n【可标注元素】\n"

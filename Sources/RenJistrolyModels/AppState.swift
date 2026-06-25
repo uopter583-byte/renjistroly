@@ -97,7 +97,7 @@ public final class AppState {
     public var pendingConfirmation: ToolRiskAssessment?
     public var activePlan: ExecutionPlan?
     public var devMode: DevModeState = .disabled
-    public var ocrEngine: OCREngine = .both {
+    public var ocrEngine: OCREngine = .appleVision {
         didSet { UserDefaults.standard.set(ocrEngine.rawValue, forKey: "appstate.ocrEngine") }
     }
     public var hasCompletedOnboarding: Bool = UserDefaults.standard.bool(forKey: "appstate.onboarding")

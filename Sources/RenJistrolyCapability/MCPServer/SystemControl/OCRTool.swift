@@ -5,10 +5,10 @@ import RenJistrolySystemBridge
 public struct OCRTool: MCPTool {
     public let definition = ToolDefinition(
         name: "ocr_screen",
-        description: "对当前屏幕截图进行 OCR 文字识别。使用 Apple Vision + PP-OCRv6 双引擎合并结果，支持中文、英文、日文混合识别。返回检测到的所有文字区域及其屏幕位置（归一化坐标）。",
+        description: "对当前屏幕截图进行 OCR 文字识别。使用 Apple Vision OCR 引擎，支持中文、英文、日文混合识别。返回检测到的所有文字区域及其屏幕位置（归一化坐标）。可指定 ppocr 或 both 引擎。",
         parameters: [
             .init(name: "min_confidence", type: .string, description: "最低置信度 0.0-1.0，默认 0.3", required: false),
-            .init(name: "engine", type: .string, description: "OCR 引擎: vision, ppocr, both（默认 both）", required: false),
+            .init(name: "engine", type: .string, description: "OCR 引擎: vision, ppocr, both（默认 vision）", required: false),
         ]
     )
     public var riskLevel: ToolRiskLevel { .low }
@@ -17,11 +17,11 @@ public struct OCRTool: MCPTool {
 
     public func execute(arguments: [String: String]) async throws -> ToolCallResult {
         let minConfidence = Float(arguments["min_confidence"] ?? "0.3") ?? 0.3
-        let engineStr = arguments["engine"] ?? "both"
+        let engineStr = arguments["engine"] ?? "vision"
         let engine: OCREngine = switch engineStr {
         case "vision": .appleVision
         case "ppocr": .ppocrV6
-        default: .both
+        default: .appleVision
         }
 
         let capture = ScreenCaptureBridge()

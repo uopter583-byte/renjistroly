@@ -21,6 +21,6 @@ public struct OCREngineResolver: Sendable {
     }
 
     public var bestAvailable: OCREngine {
-        ppocrAvailable ? .both : .appleVision
+        .appleVision
     }
 }

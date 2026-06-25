@@ -1073,7 +1073,7 @@ public struct ScreenPerceptionFallbackTool: MCPTool {
                     do {
                         let ownIDs = (try? await screen.getOwnWindowIDs()) ?? []
                         let pngData = try await screen.captureScreen(excludingWindowIDs: ownIDs)
-                        let ocrResults = try await OCRService.shared.recognize(in: pngData, preferredEngine: .both)
+                        let ocrResults = try await OCRService.shared.recognize(in: pngData, preferredEngine: .appleVision)
                         let filtered = ocrResults.filter { $0.confidence >= 0.2 && !$0.text.isEmpty }
                         if !filtered.isEmpty {
                             output += "【OCR 文字】（共 \(filtered.count) 个区域）\n"

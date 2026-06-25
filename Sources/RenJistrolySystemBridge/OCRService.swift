@@ -19,7 +19,7 @@ public final class AppleVisionOCRService: OCRServiceProtocol {
     private let recognitionLanguages: [String]
 
     public init(
-        recognitionLevel: VNRequestTextRecognitionLevel = .accurate,
+        recognitionLevel: VNRequestTextRecognitionLevel = .fast,
         usesLanguageCorrection: Bool = true,
         recognitionLanguages: [String] = ["zh-Hans", "zh-Hant", "en-US", "ja-JP"]
     ) {
