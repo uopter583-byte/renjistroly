@@ -7,9 +7,9 @@ public struct MainTabView: View {
     private let totalModeCount = 10
 
     public enum Tab: String, CaseIterable {
-        case controlPanel = "控制面板"
-        case auditLog = "审计日志"
-        case dashboard = "上下文"
+        case controlPanel
+        case auditLog
+        case dashboard
 
         var icon: String {
             switch self {
@@ -44,7 +44,7 @@ public struct MainTabView: View {
                     VStack(spacing: 4) {
                         Image(systemName: tab.icon)
                             .font(.title3)
-                        Text(tab.rawValue)
+                        Text(RenJistrolyStrings.text("mainTab\(tab.rawValue)"))
                             .font(.caption2)
                     }
                     .frame(maxWidth: .infinity)
@@ -81,7 +81,7 @@ public struct MainTabView: View {
             }
             .foregroundStyle(overallRiskLevel.color)
 
-            Text("\(activeModeCount)/\(totalModeCount) 安全模式已启用")
+            Text(String(format: RenJistrolyStrings.text("mainTabModeCountFormat"), activeModeCount, totalModeCount))
                 .font(.caption2)
                 .foregroundStyle(.secondary)
 

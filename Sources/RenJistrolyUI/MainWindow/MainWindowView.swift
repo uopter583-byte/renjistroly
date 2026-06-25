@@ -660,7 +660,7 @@ public struct MainWindowView: View {
                 try? await Task.sleep(for: .milliseconds(120))
                 await engine.startVoiceInput(appState: appState)
             }
-        case .listening, .lockedListening, .transcribing:
+        case .listening, .lockedListening, .transcribing, .paused:
             Task { await engine.finishVoiceInputAndSend(appState: appState) }
         case .requestingPermission:
             break

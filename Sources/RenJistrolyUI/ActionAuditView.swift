@@ -27,10 +27,10 @@ enum AuditStatus: String {
 
     var label: String {
         switch self {
-        case .approved: "已放行"
-        case .denied: "已拦截"
-        case .pending: "待审核"
-        case .failed: "执行失败"
+        case .approved: RenJistrolyStrings.text("auditStatusApproved")
+        case .denied: RenJistrolyStrings.text("auditStatusDenied")
+        case .pending: RenJistrolyStrings.text("auditStatusPending")
+        case .failed: RenJistrolyStrings.text("auditStatusFailed")
         }
     }
 }
@@ -80,9 +80,9 @@ public struct ActionAuditView: View {
     private var header: some View {
         HStack {
             VStack(alignment: .leading, spacing: 4) {
-                Text("操作审计")
+                Text(RenJistrolyStrings.text("auditViewTitle"))
                     .font(.title2.bold())
-                Text("所有安全模式触发的操作记录")
+                Text(RenJistrolyStrings.text("auditViewSubtitle"))
                     .font(.caption)
                     .foregroundStyle(.secondary)
             }
@@ -91,7 +91,7 @@ public struct ActionAuditView: View {
                 exportedContent = buildExportText()
                 showingExporter = true
             } label: {
-                Label("导出", systemImage: "square.and.arrow.up")
+                Label(RenJistrolyStrings.text("auditExport"), systemImage: "square.and.arrow.up")
             }
             .buttonStyle(.bordered)
         }
@@ -102,7 +102,7 @@ public struct ActionAuditView: View {
             HStack {
                 Image(systemName: "magnifyingglass")
                     .foregroundStyle(.secondary)
-                TextField("搜索操作记录…", text: $searchText)
+                TextField(RenJistrolyStrings.text("auditSearchPlaceholder"), text: $searchText)
                     .textFieldStyle(.plain)
             }
             .padding(8)
@@ -121,11 +121,11 @@ public struct ActionAuditView: View {
         let pending = logs.filter { $0.status == .pending }.count
 
         return HStack(spacing: 16) {
-            summaryItem(value: "\(total)", label: "总计", color: .primary)
+            summaryItem(value: "\(total)", label: RenJistrolyStrings.text("auditTotal"), color: .primary)
             Divider().frame(height: 20)
-            summaryItem(value: "\(denied)", label: "已拦截", color: .red)
+            summaryItem(value: "\(denied)", label: RenJistrolyStrings.text("auditDenied"), color: .red)
             Divider().frame(height: 20)
-            summaryItem(value: "\(pending)", label: "待审核", color: .orange)
+            summaryItem(value: "\(pending)", label: RenJistrolyStrings.text("auditPending"), color: .orange)
         }
         .padding(8)
         .background(.quaternary.opacity(0.2))
@@ -234,7 +234,7 @@ public struct ActionAuditView: View {
     }
 
     private func buildExportText() -> String {
-        let header = "时间\t操作\t分类\t风险\t状态\t详情"
+        let header = RenJistrolyStrings.text("auditHeader")
         let rows = filteredLogs.map { entry in
             let df = ISO8601DateFormatter()
             return "\(df.string(from: entry.timestamp))\t\(entry.action)\t\(entry.category)\t\(entry.riskLevel.label)\t\(entry.status.label)\t\(entry.detail)"

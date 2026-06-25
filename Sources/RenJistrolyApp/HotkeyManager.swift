@@ -2,6 +2,7 @@ import AppKit
 import Carbon
 
 @MainActor
+// @unchecked Sendable: Carbon API handles are non-Sendable; accessed only from MainActor context
 final class HotkeyManager: @unchecked Sendable {
     static let shared = HotkeyManager()
 

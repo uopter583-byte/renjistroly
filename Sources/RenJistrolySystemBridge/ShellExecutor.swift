@@ -53,7 +53,12 @@ public actor ShellExecutor {
 
         return try await withCheckedThrowingContinuation { (continuation: CheckedContinuation<ShellResult, Error>) in
             process.terminationHandler = { proc in
-                done.withLock { $0 = true }
+                let finishedFirst = done.withLock { alreadyDone in
+                    guard !alreadyDone else { return false }
+                    alreadyDone = true
+                    return true
+                }
+                guard finishedFirst else { return }
 
                 let out = outputPipe.fileHandleForReading.readDataToEndOfFile()
                 let err = errorPipe.fileHandleForReading.readDataToEndOfFile()

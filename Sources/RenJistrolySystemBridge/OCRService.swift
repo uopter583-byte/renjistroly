@@ -90,6 +90,10 @@ public final class AppleVisionOCRService: OCRServiceProtocol {
 
 // MARK: - Unified OCR Service
 
+// @unchecked Sendable: wraps non-Sendable AppleVisionOCRService and PPOCRv6Service.
+// AppleVisionOCRService uses a serial DispatchQueue for Vision request handling;
+// PPOCRv6Service wraps non-Sendable onnxruntime sessions. External callers use the
+// async-throwing recognize() API. Mutable state is guarded by internal serial queues.
 public final class OCRService: @unchecked Sendable {
     public static let shared = OCRService()
 

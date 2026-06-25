@@ -1,5 +1,6 @@
 import SwiftUI
 
+// @unchecked Sendable: @State properties are Sendable in Swift 6; View is used only on MainActor
 struct StreamingMarkdownText: View, @unchecked Sendable {
     let text: String
     let isStreaming: Bool

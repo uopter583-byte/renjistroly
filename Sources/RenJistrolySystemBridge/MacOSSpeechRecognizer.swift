@@ -6,6 +6,7 @@ import RenJistrolyModels
 
 private let voiceLog = OSLog(subsystem: "com.renjistroly", category: "voice")
 
+// @unchecked Sendable: wraps non-Sendable SFSpeechRecognizer; guarded by OSAllocatedUnfairLock
 private final class SpeechContinuationGate: @unchecked Sendable {
     private let lock = OSAllocatedUnfairLock()
     private var didResume = false

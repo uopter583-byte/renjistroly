@@ -206,12 +206,14 @@ private final class StreamOutput: NSObject, SCStreamOutput {
     }
 
     func stream(_ stream: SCStream, didOutput sampleBuffer: CMSampleBuffer, of outputType: SCStreamOutputType) {
-        guard outputType == .screen,
-              let imageBuffer = sampleBuffer.imageBuffer else { return }
+        autoreleasepool {
+            guard outputType == .screen,
+                  let imageBuffer = sampleBuffer.imageBuffer else { return }
 
-        let ciImage = CIImage(cvPixelBuffer: imageBuffer)
-        guard let cgImage = ciContext.createCGImage(ciImage, from: ciImage.extent) else { return }
-        onFrame(cgImage)
+            let ciImage = CIImage(cvPixelBuffer: imageBuffer)
+            guard let cgImage = ciContext.createCGImage(ciImage, from: ciImage.extent) else { return }
+            onFrame(cgImage)
+        }
     }
 }
 

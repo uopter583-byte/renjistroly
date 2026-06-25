@@ -12,6 +12,7 @@ public enum VoiceInputState: String, Codable, Sendable, Hashable {
     case requestingPermission
     case listening
     case lockedListening
+    case paused
     case transcribing
     case processing
     case speaking
@@ -21,14 +22,14 @@ public enum VoiceInputState: String, Codable, Sendable, Hashable {
         switch self {
         case .listening, .lockedListening, .transcribing:
             true
-        case .idle, .requestingPermission, .processing, .speaking, .failed:
+        case .paused, .idle, .requestingPermission, .processing, .speaking, .failed:
             false
         }
     }
 
     public var canStartListening: Bool {
         switch self {
-        case .idle, .failed:
+        case .idle, .failed, .paused:
             true
         case .requestingPermission, .listening, .lockedListening, .transcribing, .processing, .speaking:
             false
@@ -37,7 +38,7 @@ public enum VoiceInputState: String, Codable, Sendable, Hashable {
 
     public var canFinishListening: Bool {
         switch self {
-        case .listening, .lockedListening, .transcribing:
+        case .listening, .lockedListening, .transcribing, .paused:
             true
         case .idle, .requestingPermission, .processing, .speaking, .failed:
             false
@@ -46,6 +47,10 @@ public enum VoiceInputState: String, Codable, Sendable, Hashable {
 
     public var isActive: Bool {
         self != .idle
+    }
+
+    public var isPaused: Bool {
+        self == .paused
     }
 }
 

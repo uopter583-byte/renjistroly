@@ -52,6 +52,13 @@ public final class VoiceSessionManager {
     public func startVoiceInput(appState: AppState) async {
         os_log("[startVoiceInput] mode=%{public}@ voiceState=%{public}@", log: voiceLog, type: .info, appState.voiceInputMode.rawValue, "\(appState.voiceState)")
 
+        // Check shared lock file — avoid double microphone access
+        if FileManager.default.fileExists(atPath: "/tmp/freehand-voice.lock") {
+            voiceError = "麦克风正在被其他进程使用，请稍后再试。"
+            appState.voiceState = .failed
+            return
+        }
+
         voiceTask?.cancel()
         voiceTask = nil
         voiceError = nil
@@ -174,6 +181,23 @@ public final class VoiceSessionManager {
         }
         speechRecognizer.stopStreaming()
         appState.voiceState = .idle
+    }
+
+    public func pauseVoiceInput(appState: AppState) {
+        os_log("[pauseVoiceInput] voiceState=%{public}@", log: voiceLog, type: .info, "\(appState.voiceState)")
+        guard appState.voiceState == .listening || appState.voiceState == .lockedListening else { return }
+        voiceTask?.cancel()
+        voiceTask = nil
+        speechRecognizer.stopStreaming()
+        appState.voiceState = .paused
+    }
+
+    public func resumeVoiceInput(appState: AppState) async {
+        os_log("[resumeVoiceInput] voiceState=%{public}@", log: voiceLog, type: .info, "\(appState.voiceState)")
+        guard appState.voiceState == .paused else { return }
+        if appState.voiceInputMode == .accessibilityVoiceInput || appState.voiceInputMode == .builtInSpeechRecognition {
+            await startRecognizerStreaming(appState: appState)
+        }
     }
 
     public func cancelVoiceInput(appState: AppState) {

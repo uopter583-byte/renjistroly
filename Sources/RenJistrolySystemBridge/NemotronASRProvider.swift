@@ -3,6 +3,7 @@ import RenJistrolyModels
 @preconcurrency import COrt
 
 /// Sendable wrapper around OpaquePointer for @MainActor isolation compliance.
+// @unchecked Sendable: wraps non-Sendable OpaquePointer (OrtSession); internal queue serializes access
 private struct SessionRef: @unchecked Sendable {
     let ptr: OpaquePointer
 }

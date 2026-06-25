@@ -44,9 +44,9 @@ enum TestStatus {
 
     var label: String {
         switch self {
-        case .passed: "全部通过"
-        case .running: "运行中…"
-        case .failed(let c): "\(c) 个失败"
+        case .passed: RenJistrolyStrings.text("dashboardCheckPassed")
+        case .running: RenJistrolyStrings.text("dashboardCheckRunning")
+        case .failed(let c): String(format: RenJistrolyStrings.text("dashboardCheckFailed"), c)
         }
     }
 }
@@ -103,16 +103,16 @@ public struct ContextDashboard: View {
     private var header: some View {
         HStack {
             VStack(alignment: .leading, spacing: 4) {
-                Text("上下文仪表盘")
+                Text(RenJistrolyStrings.text("dashboardTitle"))
                     .font(.title2.bold())
-                Text("当前环境信息与风险概览")
+                Text(RenJistrolyStrings.text("dashboardSubtitle"))
                     .font(.caption)
                     .foregroundStyle(.secondary)
             }
             Spacer()
             HStack(spacing: 4) {
                 Circle().fill(.green).frame(width: 8, height: 8)
-                Text("上下文已刷新")
+                Text(RenJistrolyStrings.text("dashboardRefreshed"))
                     .font(.caption)
                     .foregroundStyle(.secondary)
             }
@@ -120,7 +120,7 @@ public struct ContextDashboard: View {
     }
 
     private var currentContextSection: some View {
-        GroupBox("屏幕与窗口") {
+        GroupBox(RenJistrolyStrings.text("dashboardScreenWindow")) {
             VStack(alignment: .leading, spacing: 8) {
                 ForEach(windows) { win in
                     HStack(spacing: 8) {
@@ -148,7 +148,7 @@ public struct ContextDashboard: View {
         GroupBox {
             VStack(alignment: .leading, spacing: 8) {
                 HStack {
-                    Label("剪贴板风险", systemImage: "exclamationmark.shield")
+                    Label(RenJistrolyStrings.text("dashboardClipboardRisk"), systemImage: "exclamationmark.shield")
                         .font(.subheadline.bold())
                     Spacer()
                     if !clipboardWarnings.isEmpty {
@@ -159,7 +159,7 @@ public struct ContextDashboard: View {
                 }
 
                 if clipboardWarnings.isEmpty {
-                    Text("当前剪贴板内容安全")
+                    Text(RenJistrolyStrings.text("dashboardClipboardSafe"))
                         .font(.caption)
                         .foregroundStyle(.secondary)
                 } else {
@@ -190,7 +190,7 @@ public struct ContextDashboard: View {
     }
 
     private var permissionsSection: some View {
-        GroupBox("权限状态") {
+        GroupBox(RenJistrolyStrings.text("dashboardPermissions")) {
             VStack(alignment: .leading, spacing: 6) {
                 ForEach(permissions) { perm in
                     HStack(spacing: 8) {
@@ -200,7 +200,7 @@ public struct ContextDashboard: View {
                         VStack(alignment: .leading, spacing: 1) {
                             Text(perm.title)
                                 .font(.caption)
-                            Text("上次检查: \(perm.lastChecked, style: .relative)")
+                            Text(RenJistrolyStrings.text("dashboardLastCheck")) + Text(perm.lastChecked, style: .relative)
                                 .font(.caption2)
                                 .foregroundStyle(.tertiary)
                         }
@@ -213,7 +213,7 @@ public struct ContextDashboard: View {
     }
 
     private var devContextSection: some View {
-        GroupBox("开发上下文") {
+        GroupBox(RenJistrolyStrings.text("dashboardDevContext")) {
             VStack(alignment: .leading, spacing: 8) {
                 HStack {
                     Image(systemName: "arrow.branch")
@@ -226,7 +226,7 @@ public struct ContextDashboard: View {
 
                 HStack(spacing: 8) {
                     Label(
-                        devContext.hasUncommitted ? "\(devContext.uncommittedCount) 个未提交" : "工作区干净",
+                        devContext.hasUncommitted ? "\(devContext.uncommittedCount)\(RenJistrolyStrings.text("dashboardUncommitted"))" : RenJistrolyStrings.text("dashboardWorkspaceClean"),
                         systemImage: devContext.hasUncommitted ? "doc.text" : "checkmark.circle"
                     )
                     .font(.caption)
@@ -247,7 +247,7 @@ public struct ContextDashboard: View {
                 Button {
                     // 刷新上下文
                 } label: {
-                    Label("刷新上下文", systemImage: "arrow.clockwise")
+                    Label(RenJistrolyStrings.text("dashboardRefreshContext"), systemImage: "arrow.clockwise")
                         .font(.caption)
                 }
                 .buttonStyle(.borderless)

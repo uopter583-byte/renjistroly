@@ -367,6 +367,80 @@ public actor ToolSafetyGateway {
             return .financial
         case "contract_approval":
             return arguments["action"] == "create" ? .financial : .observe
+        // CDP Chrome DevTools Protocol tools
+        case "cdp_evaluate":
+            return .shellWrite
+        case "cdp_fill", "cdp_click", "cdp_submit":
+            return .localInput
+        case "cdp_connect":
+            return .externalCommunication
+        case "cdp_disconnect", "cdp_status", "cdp_capture_screenshot",
+             "cdp_get_document", "cdp_query_selector", "cdp_query_selector_all",
+             "cdp_get_outer_html", "cdp_get_attributes", "cdp_get_performance",
+             "cdp_list_tabs", "cdp_print_to_pdf",
+             "cdp_enable_network", "cdp_get_network_entries",
+             "cdp_enable_console", "cdp_get_console_messages":
+            return .observe
+        case "cdp_navigate", "cdp_reload", "cdp_new_tab", "cdp_close_tab", "cdp_activate_tab":
+            return .localNavigation
+        case "cdp_get_cookies", "cdp_set_cookie":
+            return .credentialOrAccount
+        case "cdp_block_urls":
+            return .systemSetting
+        // Read-only observation tools
+        case "asset_naming_check", "browser_doc", "call_chain", "change_scope",
+             "ci_status", "code_review", "competitive_analysis", "crash_symbolicate",
+             "design_system_map", "design_token_map", "detect_dialogs",
+             "dom_inspect", "email_confirm_recipient", "environment_detect",
+             "explain_selected", "feedback_credibility", "figma_inspect",
+             "file_info", "keynote_safe_edit", "list_menu_items", "lockfile_check",
+             "meeting_notes_decision", "network_info", "parse_build_errors",
+             "pixel_measure", "pr_status", "prd_generator", "profile_collect",
+             "progress_track", "project_diagnose", "requirement_decompose",
+             "roadmap_confidence", "run_tests", "screen_perception_fallback",
+             "screenshot_annotate", "screenshot_compare", "spotlight_search",
+             "test_coverage", "test_and_analyze", "ui_node_reference",
+             "visual_compare", "window_select_verify", "xcode_build_analyze":
+            return .observe
+        // Tools that simulate user input
+        case "browser_form", "copy_selected", "dialog_press_button",
+             "dom_click", "dom_fill", "dom_submit", "double_click_at",
+             "media_control", "office_paste", "office_save", "office_select_all",
+             "office_undo", "polish_replace", "right_click_at":
+            return .localInput
+        // Tools that navigate the UI
+        case "browser_navigate", "close_window", "minimize_window",
+             "open_folder", "window_layout", "xcode_navigate":
+            return .localNavigation
+        // Tools that write or modify files
+        case "archive", "batch_copy", "batch_move", "copy_file",
+             "create_folder", "file_edit", "move_file", "rename_file", "screenshot":
+            return .localFileWrite
+        // Tools that delete files
+        case "batch_delete", "delete_file":
+            return .localFileDelete
+        // Tools that execute mutating shell commands
+        case "git_workflow", "homebrew", "terminal_session":
+            return .shellWrite
+        // Tools that change system settings
+        case "dark_mode", "display_brightness", "do_not_disturb", "volume_control":
+            return .systemSetting
+        // Tools that communicate externally
+        case "web_fetch", "web_search":
+            return .externalCommunication
+        // Action-based categorizations
+        case "calendar_planner":
+            return arguments["action"] == "create" ? .systemSetting : .observe
+        case "clipboard_history":
+            return arguments["action"] == "clear" ? .credentialOrAccount : .observe
+        case "mail_planner":
+            return arguments["action"] == "list" ? .observe : .externalCommunication
+        case "notes_planner":
+            return arguments["action"] == "create" ? .localFileWrite : .observe
+        case "task_list", "issue_confirm_operation":
+            return .observe
+        case "task_create", "task_update", "task_delete":
+            return .localFileWrite
         default:
             return .unknown
         }
@@ -375,6 +449,9 @@ public actor ToolSafetyGateway {
     private func explainRisk(toolName: String, level: ToolRiskLevel, category: ToolActionCategory, arguments: [String: String]) -> String {
         switch category {
         case .shellWrite:
+            if toolName == "cdp_evaluate" {
+                return "通过 Chrome DevTools Protocol 执行任意 JavaScript，可以读取或修改页面内容、提取数据、触发页面导航"
+            }
             if isDangerousDiskCommand(arguments["command"] ?? "") {
                 return "高危磁盘操作命令，误执行可能导致分区表损坏或数据永久丢失"
             }
@@ -448,6 +525,9 @@ public actor ToolSafetyGateway {
         case .appLaunch:
             return "启动应用会创建新进程并占用系统资源"
         case .localInput, .localNavigation:
+            if toolName == "cdp_fill" {
+                return "通过 Chrome DevTools Protocol JavaScript 评估将值注入网页表单字段，绕过正常 UI 交互"
+            }
             if toolName == "type_text", let text = arguments["text"], text.count > 100 {
                 return "输入较长文本（\(text.count) 字符），可能包含不可见内容"
             }

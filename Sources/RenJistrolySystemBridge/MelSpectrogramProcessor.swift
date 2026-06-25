@@ -6,6 +6,7 @@
 /// suitable for the Nemotron 3.5 ASR model.
 ///
 /// Output shape: (batch=1, mel=128, time=nFrames) stored as a flat `[Float]` array.
+// @unchecked Sendable: struct holds [Float] arrays passed to vDSP; mutation occurs only on a serial queue
 public struct MelSpectrogramProcessor: @unchecked Sendable {
 
     // MARK: - Configuration

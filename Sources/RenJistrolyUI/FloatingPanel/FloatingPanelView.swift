@@ -470,7 +470,7 @@ public struct FloatingPanelView: View {
                 try? await Task.sleep(for: .milliseconds(120))
                 controller.toggleListening()
             }
-        case .listening, .lockedListening, .transcribing:
+        case .listening, .lockedListening, .transcribing, .paused:
             controller.toggleListening()
         default:
             controller.stopSpeaking()

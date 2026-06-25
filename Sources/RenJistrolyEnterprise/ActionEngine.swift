@@ -155,6 +155,7 @@ private struct ActionEngineState {
     var history: [ActionRecord] = []
 }
 
+// @unchecked Sendable: mutable state (onStatusChange, callbacks) guarded by OSAllocatedUnfairLock
 public final class ActionEngine: @unchecked Sendable {
     private let lock = OSAllocatedUnfairLock(initialState: ActionEngineState())
     public var onStatusChange: ((ActionRecord) -> Void)?

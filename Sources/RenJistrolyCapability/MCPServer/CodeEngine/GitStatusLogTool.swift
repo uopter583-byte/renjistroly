@@ -17,6 +17,7 @@ private enum GitCommandError: LocalizedError {
     }
 }
 
+// @unchecked Sendable: mutable PipeDataCollector state guarded by NSLock; single execution path
 private final class PipeDataCollector: @unchecked Sendable {
     let pipe = Pipe()
 
@@ -51,6 +52,7 @@ private final class PipeDataCollector: @unchecked Sendable {
     }
 }
 
+// @unchecked Sendable: PipeDataCollector + CheckedContinuation guarded by NSLock sentinel
 private final class GitCommandRunner: @unchecked Sendable {
     private let task: Process
     private let outputCollector: PipeDataCollector

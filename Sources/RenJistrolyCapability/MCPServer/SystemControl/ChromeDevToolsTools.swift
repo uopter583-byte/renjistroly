@@ -77,7 +77,7 @@ public struct CDPEvaluateTool: MCPTool {
             .init(name: "expression", type: .string, description: "要执行的 JavaScript 表达式"),
         ]
     )
-    public var riskLevel: ToolRiskLevel { .medium }
+    public var riskLevel: ToolRiskLevel { .high }
 
     public init() {}
 
@@ -450,7 +450,7 @@ public struct CDPFillTool: MCPTool {
             .init(name: "value", type: .string, description: "要填充的值"),
         ]
     )
-    public var riskLevel: ToolRiskLevel { .medium }
+    public var riskLevel: ToolRiskLevel { .high }
     public init() {}
 
     public func execute(arguments: [String: String]) async throws -> ToolCallResult {

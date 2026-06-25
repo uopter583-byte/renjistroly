@@ -69,23 +69,23 @@ public struct AssistantRootView: View {
                 .frame(minWidth: 620, minHeight: 480)
         }
         .confirmationDialog(
-            "确认动作",
+            RenJistrolyStrings.text("assistantConfirmAction"),
             isPresented: Binding(
                 get: { controller.pendingAction != nil },
                 set: { if !$0 { controller.cancelPendingAction() } }
             ),
             presenting: controller.pendingAction
         ) { _ in
-            Button("执行") { controller.confirmPendingAction() }
-            Button("取消", role: .cancel) { controller.cancelPendingAction() }
+            Button(RenJistrolyStrings.text("assistantExecute")) { controller.confirmPendingAction() }
+            Button(RenJistrolyStrings.text("assistantCancel"), role: .cancel) { controller.cancelPendingAction() }
         } message: { action in
             Text(action.humanPreview)
         }
-        .alert("退出 RenJistroly", isPresented: $showQuitConfirmation) {
-            Button("取消", role: .cancel) {}
-            Button("退出", role: .destructive) { NSApplication.shared.terminate(nil) }
+        .alert(RenJistrolyStrings.text("assistantQuitTitle"), isPresented: $showQuitConfirmation) {
+            Button(RenJistrolyStrings.text("assistantCancel"), role: .cancel) {}
+            Button(RenJistrolyStrings.text("assistantQuit"), role: .destructive) { NSApplication.shared.terminate(nil) }
         } message: {
-            Text("确定要退出 RenJistroly 吗？")
+            Text(RenJistrolyStrings.text("assistantQuitMessage"))
         }
     }
 
@@ -114,7 +114,7 @@ public struct AssistantRootView: View {
     private var topBar: some View {
         HStack(spacing: 6) {
             // Toggle sidebar
-            IconButton(icon: "sidebar.left", label: "侧边栏") {
+            IconButton(icon: "sidebar.left", label: RenJistrolyStrings.text("assistantSidebar")) {
                 withAnimation(.easeInOut(duration: DS.Animation.fast)) { showsSidebar.toggle() }
             }
 
@@ -136,7 +136,7 @@ public struct AssistantRootView: View {
                     Image(systemName: "waveform")
                         .font(.system(size: 9))
                         .foregroundColor(.blue)
-                    Text(appState.voiceState == .listening ? "聆听中" : "转写中")
+                    Text(appState.voiceState == .listening ? RenJistrolyStrings.text("assistantListening") : RenJistrolyStrings.text("assistantTranscribing"))
                         .font(.system(size: 10))
                         .foregroundColor(.secondary)
                 }
@@ -150,41 +150,41 @@ public struct AssistantRootView: View {
             providerBadge
 
             // Toolbar
-            IconButton(icon: "plus.bubble", label: "新建对话") {
+            IconButton(icon: "plus.bubble", label: RenJistrolyStrings.text("assistantNewConversation")) {
                 _ = engine.sessionManager.createConversation()
                 inputText = ""
             }
 
-            IconButton(icon: "arrow.clockwise", label: "刷新上下文") {
+            IconButton(icon: "arrow.clockwise", label: RenJistrolyStrings.text("assistantRefreshContext")) {
                 Task {
                     controller.refreshPermissions()
                     await controller.refreshContext(includeScreenImage: false)
                 }
             }
 
-            IconButton(icon: "text.viewfinder", label: "读取屏幕") {
+            IconButton(icon: "text.viewfinder", label: RenJistrolyStrings.text("assistantReadScreen")) {
                 Task { await controller.readCurrentScreen() }
             }
 
-            IconButton(icon: "lock.shield", label: "权限") {
+            IconButton(icon: "lock.shield", label: RenJistrolyStrings.text("assistantPermissions")) {
                 showPermissions = true
             }
 
-            IconButton(icon: "square.stack.3d.up", label: "基础中心") {
+            IconButton(icon: "square.stack.3d.up", label: RenJistrolyStrings.text("assistantBaseCenter")) {
                 showFoundation = true
             }
 
-            IconButton(icon: "gearshape", label: "设置") {
+            IconButton(icon: "gearshape", label: RenJistrolyStrings.text("assistantSettings")) {
                 showSettings = true
             }
 
             // Toggle context
-            IconButton(icon: "sidebar.right", label: "上下文面板") {
+            IconButton(icon: "sidebar.right", label: RenJistrolyStrings.text("assistantContextPanel")) {
                 withAnimation(.easeInOut(duration: DS.Animation.fast)) { showsContext.toggle() }
             }
 
             // Quit
-            IconButton(icon: "power", label: "退出") {
+            IconButton(icon: "power", label: RenJistrolyStrings.text("assistantExit")) {
                 showQuitConfirmation = true
             }
         }
@@ -250,7 +250,7 @@ public struct AssistantRootView: View {
             Text("RenJistroly")
                 .font(Typography.semibold(Typography.Size.title))
                 .foregroundColor(.textPrimary)
-            Text("输入消息开始对话，或点击麦克风使用语音输入")
+            Text(RenJistrolyStrings.text("assistantInputPlaceholder"))
                 .font(.system(size: Typography.Size.body))
                 .foregroundColor(.textSecondary)
                 .multilineTextAlignment(.center)
@@ -264,24 +264,24 @@ public struct AssistantRootView: View {
     private var rightPanel: some View {
         VStack(alignment: .leading, spacing: DS.Spacing.sm) {
             // Context header
-            SectionHeader(title: "上下文", icon: "gauge.with.dots.needle.33percent")
+            SectionHeader(title: RenJistrolyStrings.text("assistantContextSection"), icon: "gauge.with.dots.needle.33percent")
                 .padding(.horizontal, DS.Spacing.sm)
                 .padding(.top, DS.Spacing.xs)
 
             ScrollView {
                 VStack(alignment: .leading, spacing: DS.Spacing.md) {
-                    contextSection("当前 App", icon: "app.badge") {
+                    contextSection(RenJistrolyStrings.text("assistantCurrentApp"), icon: "app.badge") {
                         VStack(alignment: .leading, spacing: 3) {
-                            Text(controller.context.app?.appName ?? "未知")
+                            Text(controller.context.app?.appName ?? RenJistrolyStrings.text("assistantUnknown"))
                                 .font(.system(size: 12, weight: .medium))
-                            Text(controller.context.app?.windowTitle ?? "无窗口标题")
+                            Text(controller.context.app?.windowTitle ?? RenJistrolyStrings.text("assistantNoWindowTitle"))
                                 .font(.system(size: 10))
                                 .foregroundColor(.secondary)
                                 .lineLimit(2)
                         }
                     }
 
-                    contextSection("运行中", icon: "square.grid.2x2") {
+                    contextSection(RenJistrolyStrings.text("assistantContextRunningApps"), icon: "square.grid.2x2") {
                         ForEach(controller.context.runningApps.prefix(8)) { app in
                             HStack(spacing: 4) {
                                 Circle()
@@ -293,29 +293,29 @@ public struct AssistantRootView: View {
                             }
                         }
                         if controller.context.runningApps.isEmpty {
-                            Text("加载中...")
+                            Text(RenJistrolyStrings.text("assistantLoading"))
                                 .font(.system(size: 10))
                                 .foregroundColor(.secondary)
                         }
                     }
 
-                    contextSection("焦点元素", icon: "cursorarrow") {
+                    contextSection(RenJistrolyStrings.text("assistantContextFocusedElement"), icon: "cursorarrow") {
                         VStack(alignment: .leading, spacing: 2) {
-                            Text("角色: \(controller.context.focusedElement?.role ?? "-")")
-                            Text("标题: \(controller.context.focusedElement?.title ?? "-")")
+                            Text(RenJistrolyStrings.text("assistantContextRole") + ": " + (controller.context.focusedElement?.role ?? "-"))
+                            Text(RenJistrolyStrings.text("assistantContextTitle") + ": " + (controller.context.focusedElement?.title ?? "-"))
                             if let selected = controller.context.focusedElement?.selectedText, !selected.isEmpty {
-                                Text("选中: \(selected)")
+                                Text(RenJistrolyStrings.text("assistantContextSelected") + ": " + selected)
                                     .lineLimit(4)
                             }
                         }
                         .font(.system(size: 10))
                     }
 
-                    contextSection("权限", icon: "lock.shield") {
+                    contextSection(RenJistrolyStrings.text("assistantPermissions"), icon: "lock.shield") {
                         VStack(alignment: .leading, spacing: 2) {
-                            permissionRow("辅助功能", appState.isPermissionGranted.accessibility)
-                            permissionRow("麦克风", appState.isPermissionGranted.microphone)
-                            permissionRow("屏幕录制", appState.isPermissionGranted.screenRecording)
+                            permissionRow(RenJistrolyStrings.text("assistantPermissionAccessibility"), appState.isPermissionGranted.accessibility)
+                            permissionRow(RenJistrolyStrings.text("assistantPermissionMicrophone"), appState.isPermissionGranted.microphone)
+                            permissionRow(RenJistrolyStrings.text("assistantPermissionScreenRecording"), appState.isPermissionGranted.screenRecording)
                         }
                     }
 
@@ -359,24 +359,24 @@ public struct AssistantRootView: View {
     // MARK: - Status
 
     private var statusText: String {
-        if appState.voiceState == .listening { return "正在听..." }
-        if appState.voiceState == .lockedListening { return "持续监听..." }
-        if appState.voiceState == .transcribing { return "转写中..." }
-        if appState.voiceState == .speaking { return "朗读中..." }
+        if appState.voiceState == .listening { return RenJistrolyStrings.text("assistantListeningStatus") }
+        if appState.voiceState == .lockedListening { return RenJistrolyStrings.text("assistantLockedListening") }
+        if appState.voiceState == .transcribing { return RenJistrolyStrings.text("assistantTranscribing") }
+        if appState.voiceState == .speaking { return RenJistrolyStrings.text("assistantSpeaking") }
         if engine.isProcessing {
-            if appState.activePlan?.status == .executing { return "执行计划..." }
-            return "处理中..."
+            if appState.activePlan?.status == .executing { return RenJistrolyStrings.text("assistantExecutingPlan") }
+            return RenJistrolyStrings.text("assistantProcessing")
         }
         if let plan = appState.activePlan {
             switch plan.status {
-            case .pendingApproval: return "等待批准"
-            case .executing: return "执行计划..."
-            case .completed: return "计划完成"
-            case .failed: return "计划失败"
+            case .pendingApproval: return RenJistrolyStrings.text("assistantAwaitingApproval")
+            case .executing: return RenJistrolyStrings.text("assistantExecutingPlan")
+            case .completed: return RenJistrolyStrings.text("assistantPlanCompleted")
+            case .failed: return RenJistrolyStrings.text("assistantPlanFailed")
             default: break
             }
         }
-        return "就绪"
+        return RenJistrolyStrings.text("assistantReady")
     }
 
     private var statusColor: Color {

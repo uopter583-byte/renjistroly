@@ -152,6 +152,7 @@ public typealias ModeHandler = @Sendable (String, EnterpriseRiskLevel) -> Bool
 
 // MARK: - Mode Manager
 
+// @unchecked Sendable: modeHandlers dictionary guarded by OSAllocatedUnfairLock
 public final class ModeManager: @unchecked Sendable {
     private struct State {
         var config: ModeConfiguration

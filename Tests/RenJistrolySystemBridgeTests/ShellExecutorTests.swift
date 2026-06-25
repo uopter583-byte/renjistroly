@@ -1,6 +1,7 @@
 import XCTest
 @testable import RenJistrolySystemBridge
 
+final class ShellExecutorTests: XCTestCase {
 func testShellExecutorEmptyCommand() async {
     let executor = ShellExecutor()
     do {
@@ -145,4 +146,23 @@ func testShellExecutorCustomAllowedCommandsBlocksUnexpected() async {
     } catch {
         XCTAssertTrue(error is ShellError)
     }
+}
+
+func testShellExecutorTimeoutDoesNotDoubleResume() async {
+    let executor = ShellExecutor(allowedCommands: ["tail"])
+    do {
+        _ = try await executor.execute("tail -f /dev/null", timeout: 0.05)
+        XCTFail("应该超时")
+    } catch let error as ShellError {
+        if case .timeout = error {
+            // expected
+        } else {
+            XCTFail("错误的异常类型")
+        }
+    } catch {
+        XCTFail("错误的异常类型")
+    }
+
+    try? await Task.sleep(for: .milliseconds(200))
+}
 }

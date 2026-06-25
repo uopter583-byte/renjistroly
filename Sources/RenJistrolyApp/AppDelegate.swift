@@ -27,11 +27,11 @@ final class AppDelegate: NSObject, NSApplicationDelegate, ObservableObject {
         if isDuplicateInstance() {
             Task { await eventBus.publish(.system(.duplicateInstanceDetected)) }
             let alert = NSAlert()
-            alert.messageText = "RenJistroly 已在运行"
-            alert.informativeText = "检测到已有 RenJistroly 实例在运行。多个实例会导致 Gate 文件冲突。是否退出此实例？"
+            alert.messageText = RenJistrolyStrings.text("appDelegateAlreadyRunningTitle")
+            alert.informativeText = RenJistrolyStrings.text("appDelegateDuplicateInstanceBody")
             alert.alertStyle = .warning
-            alert.addButton(withTitle: "退出")
-            alert.addButton(withTitle: "继续运行")
+            alert.addButton(withTitle: RenJistrolyStrings.text("assistantQuit"))
+            alert.addButton(withTitle: RenJistrolyStrings.text("appDelegateContinueRunning"))
             if alert.runModal() == .alertFirstButtonReturn {
                 NSApplication.shared.terminate(nil)
                 return
@@ -132,10 +132,10 @@ final class AppDelegate: NSObject, NSApplicationDelegate, ObservableObject {
         os_log(.fault, "[RenJistroly] 检测到连续崩溃，进入安全模式")
 
         let alert = NSAlert()
-        alert.messageText = "RenJistroly 进入安全模式"
-        alert.informativeText = "检测到应用连续崩溃多次。已禁用部分自动功能（如 MCP 自动启动）。\n\n如需重置崩溃记录，请删除 ~/Library/Logs/RenJistroly/crash_history.json"
+        alert.messageText = RenJistrolyStrings.text("appDelegateSafeModeTitle")
+        alert.informativeText = RenJistrolyStrings.text("appDelegateSafeModeBody")
         alert.alertStyle = .critical
-        alert.addButton(withTitle: "了解")
+        alert.addButton(withTitle: RenJistrolyStrings.text("appDelegateAcknowledge"))
         alert.runModal()
 
         Task { await AgentEventBus.shared.publish(.system(.errorOccurred(domain: "crash", message: "连续崩溃，进入安全模式", recoverable: true))) }
@@ -234,7 +234,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate, ObservableObject {
                 .environment(engineForEnv)
             let hosting = NSHostingController(rootView: content)
             let window = NSWindow(contentViewController: hosting)
-            window.title = "RenJistroly 设置"
+            window.title = RenJistrolyStrings.text("appDelegateSettingsWindowTitle")
             window.styleMask = [.titled, .closable, .miniaturizable]
             window.setContentSize(NSSize(width: 500, height: 400))
             window.center()
@@ -248,7 +248,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate, ObservableObject {
     private func preventAppNap() {
         appNapActivity = ProcessInfo.processInfo.beginActivity(
             options: [.userInitiated, .idleSystemSleepDisabled, .suddenTerminationDisabled, .automaticTerminationDisabled],
-            reason: "RenJistroly 需要持续后台活动以保持语音和屏幕监听"
+            reason: RenJistrolyStrings.text("appDelegateAppNapReason")
         )
         Task { await eventBus.publish(.system(.appNapPrevented)) }
     }
@@ -329,16 +329,11 @@ final class AppDelegate: NSObject, NSApplicationDelegate, ObservableObject {
 
     private func showPermissionAlert() {
         let alert = NSAlert()
-        alert.messageText = "需要辅助功能权限"
-        alert.informativeText = """
-        RenJistroly 需要辅助功能权限来控制您的 Mac。
-
-        请在系统设置 > 隐私与安全性 > 辅助功能中，
-        添加并启用 RenJistroly。
-        """
+        alert.messageText = RenJistrolyStrings.text("appDelegatePermissionTitle")
+        alert.informativeText = RenJistrolyStrings.text("appDelegatePermissionBody")
         alert.alertStyle = .informational
-        alert.addButton(withTitle: "打开系统设置")
-        alert.addButton(withTitle: "稍后")
+        alert.addButton(withTitle: RenJistrolyStrings.text("appDelegateOpenSystemSettings"))
+        alert.addButton(withTitle: RenJistrolyStrings.text("appDelegateLater"))
         if alert.runModal() == .alertFirstButtonReturn {
             guard let url = URL(string: "x-apple.systempreferences:com.apple.preference.security?Privacy_Accessibility") else { return }
             NSWorkspace.shared.open(url)

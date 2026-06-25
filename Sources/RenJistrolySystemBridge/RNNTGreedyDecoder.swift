@@ -16,6 +16,7 @@ import COrt
 /// - Vocabulary: 13087 BPE tokens + blank (index 0) = 13088.
 /// - Decoder: 2-layer LSTM, hidden 640.
 /// - Joint:   linear projections -> add -> tanh -> linear -> 13088 logits.
+// @unchecked Sendable: wraps OpaquePointer (OrtSession) from COrt module; access serialized by internal queue
 final class RNNTGreedyDecoder: @unchecked Sendable {
     let blankID: Int32 = 0
     let maxSymbolsPerFrame: Int

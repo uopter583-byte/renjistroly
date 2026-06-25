@@ -4,6 +4,7 @@ import RenJistrolyIntelligence
 import RenJistrolyModels
 import RenJistrolyConversation
 import RenJistrolySystemBridge
+import RenJistrolyUI
 
 struct SettingsView: View {
     @Environment(AppState.self) private var appState
@@ -48,22 +49,22 @@ struct SettingsView: View {
     var body: some View {
         TabView {
             generalSettings
-                .tabItem { Label("通用", systemImage: "gearshape") }
+                .tabItem { Label(RenJistrolyStrings.text("settingsTabGeneral"), systemImage: "gearshape") }
 
             providerSettings
-                .tabItem { Label("AI 模型", systemImage: "brain") }
+                .tabItem { Label(RenJistrolyStrings.text("settingsTabAIModel"), systemImage: "brain") }
 
             toolSafetySettings
-                .tabItem { Label("安全", systemImage: "shield.checkered") }
+                .tabItem { Label(RenJistrolyStrings.text("settingsTabSecurity"), systemImage: "shield.checkered") }
 
             developerSettings
-                .tabItem { Label("开发者", systemImage: "hammer") }
+                .tabItem { Label(RenJistrolyStrings.text("settingsTabDeveloper"), systemImage: "hammer") }
 
             permissionsSettings
-                .tabItem { Label("权限", systemImage: "lock.shield") }
+                .tabItem { Label(RenJistrolyStrings.text("settingsTabPermissions"), systemImage: "lock.shield") }
 
             aboutSettings
-                .tabItem { Label("关于", systemImage: "info.circle") }
+                .tabItem { Label(RenJistrolyStrings.text("settingsTabAbout"), systemImage: "info.circle") }
         }
         .frame(width: 500, height: 400)
         .task {
@@ -82,38 +83,38 @@ struct SettingsView: View {
 
     private var generalSettings: some View {
         Form {
-            Section("启动与外观") {
-                Toggle("开机自动启动", isOn: .constant(false))
-                Toggle("在菜单栏显示图标", isOn: .constant(true))
-                Toggle("启用浮动面板", isOn: hotkeyBinding)
+            Section(RenJistrolyStrings.text("settingsGeneralStartupAppearance")) {
+                Toggle(RenJistrolyStrings.text("settingsLaunchAtLogin"), isOn: .constant(false))
+                Toggle(RenJistrolyStrings.text("settingsShowMenuBarIcon"), isOn: .constant(true))
+                Toggle(RenJistrolyStrings.text("settingsEnableFloatingPanel"), isOn: hotkeyBinding)
             }
 
-            Section("默认 AI 提供者") {
-                Picker("默认模型", selection: providerBinding) {
+            Section(RenJistrolyStrings.text("settingsDefaultAIProvider")) {
+                Picker(RenJistrolyStrings.text("settingsDefaultModel"), selection: providerBinding) {
                     ForEach(LLMProvider.allCases, id: \.self) { provider in
                         Text(provider.displayName).tag(provider)
                     }
                 }
             }
 
-            Section("交互") {
-                Toggle("启用语音回复", isOn: voiceOutputBinding)
-                Toggle("连续语音模式", isOn: continuousVoiceBinding)
+            Section(RenJistrolyStrings.text("settingsInteraction")) {
+                Toggle(RenJistrolyStrings.text("settingsVoiceReply"), isOn: voiceOutputBinding)
+                Toggle(RenJistrolyStrings.text("settingsContinuousVoice"), isOn: continuousVoiceBinding)
 
                 HStack {
-                    Text("全局热键")
+                    Text(RenJistrolyStrings.text("settingsGlobalHotkey"))
                     Spacer()
-                    Text("按住 ⌥ Space")
+                    Text(RenJistrolyStrings.text("settingsHotkeyValue"))
                         .foregroundColor(.secondary)
                         .padding(.horizontal, 8)
                         .padding(.vertical, 2)
                         .background(Capsule().fill(Color.secondary.opacity(0.1)))
                 }
 
-                Picker("语音语言", selection: .constant("zh-CN")) {
-                    Text("中文").tag("zh-CN")
+                Picker(RenJistrolyStrings.text("settingsVoiceLanguage"), selection: .constant("zh-CN")) {
+                    Text(RenJistrolyStrings.text("settingsChinese")).tag("zh-CN")
                     Text("English").tag("en-US")
-                    Text("日本語").tag("ja-JP")
+                    Text(RenJistrolyStrings.text("settingsJapanese")).tag("ja-JP")
                 }
             }
         }
@@ -124,18 +125,18 @@ struct SettingsView: View {
 
     private var toolSafetySettings: some View {
         Form {
-            Section("工具自动执行策略") {
+            Section(RenJistrolyStrings.text("settingsToolAutoExecutePolicy")) {
                 VStack(alignment: .leading, spacing: 4) {
-                    Text("控制 AI 助手执行系统操作时是否需要确认。")
+                    Text(RenJistrolyStrings.text("settingsToolPolicyDescription"))
                         .font(.caption)
                         .foregroundColor(.secondary)
                 }
 
                 Toggle(isOn: autoApproveLowBinding) {
                     VStack(alignment: .leading) {
-                        Text("低风险 · 自动执行")
+                        Text(RenJistrolyStrings.text("settingsLowRiskAuto"))
                             .font(.system(size: 13, weight: .medium))
-                        Text("只读操作：读取文件、列出目录、系统信息、Git状态等")
+                        Text(RenJistrolyStrings.text("settingsLowRiskDesc"))
                             .font(.system(size: 11))
                             .foregroundColor(.secondary)
                     }
@@ -143,9 +144,9 @@ struct SettingsView: View {
 
                 Toggle(isOn: autoApproveMediumBinding) {
                     VStack(alignment: .leading) {
-                        Text("中风险 · 自动执行")
+                        Text(RenJistrolyStrings.text("settingsMediumRiskAuto"))
                             .font(.system(size: 13, weight: .medium))
-                        Text("UI交互：打开应用、点击元素、按键、菜单导航等")
+                        Text(RenJistrolyStrings.text("settingsMediumRiskDesc"))
                             .font(.system(size: 11))
                             .foregroundColor(.secondary)
                     }
@@ -153,9 +154,9 @@ struct SettingsView: View {
 
                 Toggle(isOn: autoApproveHighBinding) {
                     VStack(alignment: .leading) {
-                        Text("高风险 · 自动执行")
+                        Text(RenJistrolyStrings.text("settingsHighRiskAuto"))
                             .font(.system(size: 13, weight: .medium))
-                        Text("系统修改：写入文件、Shell命令、文字输入、拖拽等")
+                        Text(RenJistrolyStrings.text("settingsHighRiskDesc"))
                             .font(.system(size: 11))
                             .foregroundColor(.secondary)
                     }
@@ -163,11 +164,11 @@ struct SettingsView: View {
                 .foregroundColor(.red)
             }
 
-            Section("预设") {
+            Section(RenJistrolyStrings.text("settingsPresets")) {
                 HStack(spacing: 12) {
-                    policyPresetButton("默认", policy: .default, description: "低风险自动，中高风险确认")
-                    policyPresetButton("宽松", policy: .permissive, description: "低中风险自动，仅高风险确认")
-                    policyPresetButton("严格", policy: .strict, description: "全部需要确认")
+                    policyPresetButton(RenJistrolyStrings.text("settingsPresetDefault"), policy: .default, description: RenJistrolyStrings.text("settingsPresetDefaultDesc"))
+                    policyPresetButton(RenJistrolyStrings.text("settingsPresetPermissive"), policy: .permissive, description: RenJistrolyStrings.text("settingsPresetPermissiveDesc"))
+                    policyPresetButton(RenJistrolyStrings.text("settingsPresetStrict"), policy: .strict, description: RenJistrolyStrings.text("settingsPresetStrictDesc"))
                 }
             }
         }
@@ -221,44 +222,44 @@ struct SettingsView: View {
 
     private var providerSettings: some View {
         Form {
-            Section("Anthropic (Claude)") {
-                SecureField("API Key", text: $anthropicKey)
+            Section(RenJistrolyStrings.text("settingsAnthropic")) {
+                SecureField(RenJistrolyStrings.text("settingsApiKeyPlaceholder"), text: $anthropicKey)
                     .onChange(of: anthropicKey) { _, newValue in
                         Task { await engine.configureCloudAPI(provider: .anthropic, key: newValue) }
                     }
-                Text("获取 API Key: console.anthropic.com")
+                Text(RenJistrolyStrings.text("settingsGetApiKeyPrefix") + " console.anthropic.com")
                     .font(.caption)
                     .foregroundColor(.secondary)
             }
 
             Section("OpenAI") {
-                SecureField("API Key", text: $openAIKey)
+                SecureField(RenJistrolyStrings.text("settingsApiKeyPlaceholder"), text: $openAIKey)
                     .onChange(of: openAIKey) { _, newValue in
                         Task { await engine.configureCloudAPI(provider: .openAI, key: newValue) }
                     }
-                Text("获取 API Key: platform.openai.com")
+                Text(RenJistrolyStrings.text("settingsGetApiKeyPrefix") + " platform.openai.com")
                     .font(.caption)
                     .foregroundColor(.secondary)
             }
 
             Section("DeepSeek") {
-                SecureField("API Key", text: $deepseekKey)
+                SecureField(RenJistrolyStrings.text("settingsApiKeyPlaceholder"), text: $deepseekKey)
                     .onChange(of: deepseekKey) { _, newValue in
                         Task { await engine.configureCloudAPI(provider: .deepseek, key: newValue) }
                     }
-                Text("获取 API Key: platform.deepseek.com")
+                Text(RenJistrolyStrings.text("settingsGetApiKeyPrefix") + " platform.deepseek.com")
                     .font(.caption)
                     .foregroundColor(.secondary)
             }
 
-            Section("本地模型 (MLX)") {
+            Section(RenJistrolyStrings.text("settingsLocalMLX")) {
                 HStack {
-                    Text("状态")
+                    Text(RenJistrolyStrings.text("settingsMLXStatus"))
                     Spacer()
-                    Text("Apple Silicon · 可用")
+                    Text(RenJistrolyStrings.text("settingsMLXAvailable"))
                         .foregroundColor(.green)
                 }
-                Text("本地模型在 Apple Silicon 上运行，无需联网，数据安全")
+                Text(RenJistrolyStrings.text("settingsMLXDescription"))
                     .font(.caption)
                     .foregroundColor(.secondary)
             }
@@ -277,12 +278,12 @@ struct SettingsView: View {
 
     private var developerSettings: some View {
         Form {
-            Section("开发者模式") {
-                Toggle("启用开发者模式", isOn: devModeBinding)
+            Section(RenJistrolyStrings.text("settingsDevMode")) {
+                Toggle(RenJistrolyStrings.text("settingsEnableDevMode"), isOn: devModeBinding)
 
                 if appState.devMode.isEnabled {
                     VStack(alignment: .leading, spacing: 8) {
-                        Text("项目路径")
+                        Text(RenJistrolyStrings.text("settingsProjectPath"))
                             .font(.system(size: 12, weight: .medium))
                         HStack {
                             Text(appState.devMode.projectPath ?? contextCompilerPath)
@@ -290,7 +291,7 @@ struct SettingsView: View {
                                 .foregroundColor(.secondary)
                                 .lineLimit(1)
                             Spacer()
-                            Button("检测") {
+                            Button(RenJistrolyStrings.text("settingsDetect")) {
                                 appState.devMode.projectPath = engine.contextCompiler.currentContext?.rootPath
                             }
                             .font(.system(size: 11))
@@ -300,8 +301,8 @@ struct SettingsView: View {
             }
 
             if appState.devMode.isEnabled {
-                Section("OCR 引擎") {
-                    Picker("文字识别引擎", selection: ocrEngineBinding) {
+                Section(RenJistrolyStrings.text("settingsOCREngine")) {
+                    Picker(RenJistrolyStrings.text("settingsOCREnginePicker"), selection: ocrEngineBinding) {
                         ForEach(OCREngine.allCases, id: \.self) { engine in
                             Text(engine.displayName).tag(engine)
                         }
@@ -313,10 +314,10 @@ struct SettingsView: View {
                         HStack {
                             Image(systemName: engine.claudeCodeStatus.isInstalled ? "checkmark.circle.fill" : "xmark.circle.fill")
                                 .foregroundColor(engine.claudeCodeStatus.isInstalled ? .green : .orange)
-                            Text(engine.claudeCodeStatus.isInstalled ? "Claude Code 已可用" : "Claude Code 未检测到")
+                            Text(engine.claudeCodeStatus.isInstalled ? RenJistrolyStrings.text("settingsClaudeCodeReady") : RenJistrolyStrings.text("settingsClaudeCodeNotDetected"))
                                 .font(.system(size: 12, weight: .medium))
                             Spacer()
-                            Button("刷新") {
+                            Button(RenJistrolyStrings.text("settingsClaudeCodeRefresh")) {
                                 Task { await syncClaudeCodePath() }
                             }
                             .font(.system(size: 11))
@@ -330,7 +331,7 @@ struct SettingsView: View {
                             }
 
                         HStack {
-                            Text("当前项目")
+                            Text(RenJistrolyStrings.text("settingsCurrentProject"))
                                 .font(.system(size: 11))
                                 .foregroundColor(.secondary)
                             Spacer()
@@ -340,16 +341,16 @@ struct SettingsView: View {
                                 .lineLimit(1)
                         }
 
-                        TextField("给 Claude Code 的任务，例如：阅读当前 Swift Package 并总结未完成的能力", text: $claudeTaskPrompt, axis: .vertical)
+                        TextField(RenJistrolyStrings.text("settingsClaudeCodePromptPlaceholder"), text: $claudeTaskPrompt, axis: .vertical)
                             .textFieldStyle(.roundedBorder)
                             .lineLimit(3...5)
 
                         HStack {
-                            Button("保存路径") {
+                            Button(RenJistrolyStrings.text("settingsSavePath")) {
                                 Task { await syncClaudeCodePath() }
                             }
 
-                            Button("启动 Claude 任务") {
+                            Button(RenJistrolyStrings.text("settingsLaunchClaudeTask")) {
                                 let prompt = claudeTaskPrompt
                                 claudeTaskPrompt = ""
                                 Task { await engine.launchClaudeCodeTask(prompt, appState: appState) }
@@ -358,31 +359,31 @@ struct SettingsView: View {
                         }
 
                         Text(engine.claudeCodeStatus.isInstalled
-                             ? "Claude Code 会在当前项目目录中执行开发任务，并把输出流式返回到对话区。"
-                             : "请确认 Claude Code CLI 已安装，并把可执行文件路径填写到上方。")
+                             ? RenJistrolyStrings.text("settingsClaudeCodeHelp")
+                             : RenJistrolyStrings.text("settingsClaudeCodeNotInstalledHelp"))
                             .font(.system(size: 10))
                             .foregroundColor(.secondary)
                     }
                 }
 
-                Section("快速操作") {
+                Section(RenJistrolyStrings.text("settingsQuickActions")) {
                     HStack {
                         Button {
                             Task {
                                 let result = await engine.buildProject(appState: appState)
-                                await engine.sendMessage("构建完成: \(result.summary)", appState: appState)
+                                await engine.sendMessage(String(format: RenJistrolyStrings.text("settingsBuildResult"), result.summary), appState: appState)
                             }
                         } label: {
-                            Label("构建", systemImage: "hammer")
+                            Label(RenJistrolyStrings.text("settingsBuild"), systemImage: "hammer")
                         }
 
                         Button {
                             Task {
                                 let result = await engine.runTests(appState: appState)
-                                await engine.sendMessage("测试完成: \(result.summary)", appState: appState)
+                                await engine.sendMessage(String(format: RenJistrolyStrings.text("settingsTestResult"), result.summary), appState: appState)
                             }
                         } label: {
-                            Label("测试", systemImage: "checklist")
+                            Label(RenJistrolyStrings.text("settingsTest"), systemImage: "checklist")
                         }
                     }
 
@@ -394,21 +395,21 @@ struct SettingsView: View {
                     }
                 }
 
-                Section("Self-Update") {
+                Section(RenJistrolyStrings.text("settingsSelfUpdate")) {
                     HStack {
                         Image(systemName: helperStatusIcon)
                             .foregroundColor(helperStatusColor)
-                        Text("Helper: \(helperStatusText)")
+                        Text(String(format: RenJistrolyStrings.text("settingsHelperLabel"), helperStatusText))
                             .font(.system(size: 12, weight: .medium))
                         Spacer()
-                        Button("检查") {
+                        Button(RenJistrolyStrings.text("settingsCheck")) {
                             Task { await updateManager?.checkHelperStatus() }
                         }
                         .font(.system(size: 11))
                     }
 
                     HStack {
-                        Text("当前版本")
+                        Text(RenJistrolyStrings.text("settingsCurrentVersion"))
                             .font(.system(size: 11))
                             .foregroundColor(.secondary)
                         Spacer()
@@ -421,7 +422,7 @@ struct SettingsView: View {
                         Button {
                             _ = updateManager?.installHelper()
                         } label: {
-                            Label("安装 Helper", systemImage: "gearshape.2")
+                            Label(RenJistrolyStrings.text("settingsInstallHelper"), systemImage: "gearshape.2")
                         }
                         .font(.system(size: 11))
 
@@ -429,13 +430,13 @@ struct SettingsView: View {
                             Task {
                                 let (ok, msg) = await updateManager?.verifySignature(
                                     of: Bundle.main.bundlePath
-                                ) ?? (false, "无响应")
+                                ) ?? (false, RenJistrolyStrings.text("settingsNoResponse"))
                                 #if DEBUG
                                 Logger.app.log("[SettingsView] 签名验证: \(ok ? "OK" : "FAIL", privacy: .public) — \(msg, privacy: .public)")
                                 #endif
                             }
                         } label: {
-                            Label("验证签名", systemImage: "checkmark.seal")
+                            Label(RenJistrolyStrings.text("settingsVerifySignature"), systemImage: "checkmark.seal")
                         }
                         .font(.system(size: 11))
                     }
@@ -474,19 +475,19 @@ struct SettingsView: View {
     }
 
     private var helperStatusText: String {
-        guard let status = updateManager?.helperStatus else { return "未知" }
+        guard let status = updateManager?.helperStatus else { return RenJistrolyStrings.text("settingsHelperUnknown") }
         switch status {
-        case .unknown: return "未知"
-        case .notInstalled: return "未安装"
-        case .installed: return "已安装"
-        case .installing: return "安装中..."
-        case .connected: return "已连接"
-        case .error(let msg): return "错误: \(msg.prefix(30))"
+        case .unknown: return RenJistrolyStrings.text("settingsHelperUnknown")
+        case .notInstalled: return RenJistrolyStrings.text("settingsHelperNotInstalled")
+        case .installed: return RenJistrolyStrings.text("settingsHelperInstalled")
+        case .installing: return RenJistrolyStrings.text("settingsHelperInstalling")
+        case .connected: return RenJistrolyStrings.text("settingsHelperConnected")
+        case .error(let msg): return String(format: RenJistrolyStrings.text("settingsHelperError"), String(msg.prefix(30)))
         }
     }
 
     private var contextCompilerPath: String {
-        engine.contextCompiler.currentContext?.rootPath ?? "未检测到项目"
+        engine.contextCompiler.currentContext?.rootPath ?? RenJistrolyStrings.text("settingsProjectNotDetected")
     }
 
     private func syncClaudeCodePath() async {
@@ -498,7 +499,7 @@ struct SettingsView: View {
         HStack {
             Image(systemName: result.success ? "checkmark.circle.fill" : "xmark.circle.fill")
                 .foregroundColor(result.success ? .green : .red)
-            Text("最近构建: \(result.summary)")
+            Text(String(format: RenJistrolyStrings.text("settingsRecentBuild"), result.summary))
                 .font(.system(size: 11))
                 .foregroundColor(.secondary)
         }
@@ -508,7 +509,7 @@ struct SettingsView: View {
         HStack {
             Image(systemName: result.success ? "checkmark.circle.fill" : "xmark.circle.fill")
                 .foregroundColor(result.success ? .green : .red)
-            Text("最近测试: \(result.summary)")
+            Text(String(format: RenJistrolyStrings.text("settingsRecentTest"), result.summary))
                 .font(.system(size: 11))
                 .foregroundColor(.secondary)
         }
@@ -520,7 +521,7 @@ struct SettingsView: View {
         Form {
             Section {
                 HStack {
-                    Text("权限状态")
+                    Text(RenJistrolyStrings.text("settingsPermissionStatus"))
                         .font(.system(size: 13, weight: .medium))
                     Spacer()
                     Button {
@@ -530,20 +531,20 @@ struct SettingsView: View {
                             ProgressView()
                                 .scaleEffect(0.6)
                         } else {
-                            Label("刷新", systemImage: "arrow.clockwise")
+                            Label(RenJistrolyStrings.text("settingsRefresh"), systemImage: "arrow.clockwise")
                         }
                     }
                     .disabled(isRefreshingPermissions)
                 }
             }
 
-            Section("系统权限") {
+            Section(RenJistrolyStrings.text("settingsSystemPermissions")) {
                 ForEach(SystemPermissionKind.allCases) { kind in
                     PermissionRow(
                         check: permissionChecks[kind] ?? SystemPermissionCheck(
                             kind: kind,
                             status: .unknown,
-                            detail: "尚未刷新。"
+                            detail: RenJistrolyStrings.text("settingsNotRefreshed")
                         ),
                         requestAction: {
                             Task { await requestPermission(kind) }
@@ -555,8 +556,8 @@ struct SettingsView: View {
                 }
             }
 
-            Section("隐私") {
-                Text("所有语音处理在本地完成，对话敏感数据不会离开设备。云端 API 调用仅发送必要的对话内容，且完全由您控制的 API Key 完成。")
+            Section(RenJistrolyStrings.text("settingsPrivacy")) {
+                Text(RenJistrolyStrings.text("settingsPrivacyText"))
                     .font(.caption)
                     .foregroundColor(.secondary)
             }
@@ -596,14 +597,14 @@ struct SettingsView: View {
             Text("RenJistroly")
                 .font(.system(size: 28, weight: .bold))
 
-            Text("版本 0.1.0")
+            Text(RenJistrolyStrings.text("settingsVersion") + " 0.1.0")
                 .font(.system(size: 14))
                 .foregroundColor(.secondary)
 
-            Text("macOS 原生智能助手")
+            Text(RenJistrolyStrings.text("settingsAboutTagline"))
                 .font(.system(size: 16))
 
-            Text("本地 Apple Silicon AI + 云端大模型\n系统控制 · 代码辅助 · 自然对话")
+            Text(RenJistrolyStrings.text("settingsAboutDescription"))
                 .font(.system(size: 13))
                 .foregroundColor(.secondary)
                 .multilineTextAlignment(.center)
@@ -654,12 +655,12 @@ struct PermissionRow: View {
 
                 if !check.status.isGranted {
                     HStack(spacing: 6) {
-                        Button("请求") {
+                        Button(RenJistrolyStrings.text("settingsRequest")) {
                             requestAction()
                         }
                         .font(.system(size: 11))
 
-                        Button("设置") {
+                        Button(RenJistrolyStrings.text("settingsOpenSettings")) {
                             openSettingsAction()
                         }
                         .font(.system(size: 11))

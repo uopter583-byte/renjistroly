@@ -2,6 +2,7 @@ import Foundation
 import os
 
 /// 防止抢鼠标 — 企业级部署保护，尊重用户主导权
+// @unchecked Sendable: singleton with mutable state guarded by OSAllocatedUnfairLock
 public final class MouseGuard: @unchecked Sendable {
     public static let shared = MouseGuard()
 

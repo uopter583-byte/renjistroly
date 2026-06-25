@@ -3,6 +3,7 @@ import RenJistrolyModels
 import os
 
 /// 策略层 — 工具越多越危险，策略控制一切
+// @unchecked Sendable: plugin cache and mutable state guarded by OSAllocatedUnfairLock
 public final class PolicyLayer: @unchecked Sendable {
     public static let shared = PolicyLayer()
 

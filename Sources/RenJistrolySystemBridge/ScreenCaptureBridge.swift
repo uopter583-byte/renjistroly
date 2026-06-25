@@ -39,7 +39,7 @@ public actor ScreenCaptureBridge {
 
         let streamOutput = SingleFrameCapture()
 
-        let stream = SCStream(filter: filter, configuration: config, delegate: nil)
+        let stream = SCStream(filter: filter, configuration: config, delegate: streamOutput.delegate)
         try stream.addStreamOutput(streamOutput, type: .screen, sampleHandlerQueue: .global())
 
         return try await withCheckedThrowingContinuation { continuation in
@@ -57,6 +57,14 @@ public actor ScreenCaptureBridge {
                     alreadyDone = true
                 }
                 continuation.resume(throwing: error)
+            }
+
+            streamOutput.delegate.onStreamError = { error in
+                done.withLock { alreadyDone in
+                    guard !alreadyDone else { return }
+                    alreadyDone = true
+                }
+                continuation.resume(throwing: ScreenCaptureError.streamError(error.localizedDescription))
             }
 
             let sendableStream = UncheckedSendableBox(stream)
@@ -109,28 +117,41 @@ private final class SingleFrameCapture: NSObject, SCStreamOutput {
     var onFrame: (@Sendable (Data) -> Void)?
     var onError: (@Sendable (Error) -> Void)?
     private var hasCaptured = false
+    private let ciContext = CIContext()
+    fileprivate let delegate = SingleFrameCaptureDelegate()
 
     func stream(_ stream: SCStream, didOutputSampleBuffer sampleBuffer: CMSampleBuffer, of type: SCStreamOutputType) {
-        guard !hasCaptured else { return }
-        hasCaptured = true
-        defer { stream.stopCapture() }
+        autoreleasepool {
+            guard !hasCaptured else { return }
+            hasCaptured = true
+            defer { stream.stopCapture() }
 
-        guard type == .screen else { onError?(ScreenCaptureError.imageConversionFailed); return }
-        guard let imageBuffer = sampleBuffer.imageBuffer else { onError?(ScreenCaptureError.imageConversionFailed); return }
+            guard type == .screen else { onError?(ScreenCaptureError.imageConversionFailed); return }
+            guard let imageBuffer = sampleBuffer.imageBuffer else { onError?(ScreenCaptureError.imageConversionFailed); return }
 
-        let ciImage = CIImage(cvImageBuffer: imageBuffer)
-        let context = CIContext()
-        guard let cgImage = context.createCGImage(ciImage, from: ciImage.extent) else {
-            onError?(ScreenCaptureError.imageConversionFailed)
-            return
+            let ciImage = CIImage(cvImageBuffer: imageBuffer)
+            guard let cgImage = ciContext.createCGImage(ciImage, from: ciImage.extent) else {
+                onError?(ScreenCaptureError.imageConversionFailed)
+                return
+            }
+
+            let bitmapRep = NSBitmapImageRep(cgImage: cgImage)
+            guard let pngData = bitmapRep.representation(using: .png, properties: [:]) else {
+                onError?(ScreenCaptureError.imageConversionFailed)
+                return
+            }
+            onFrame?(pngData)
         }
+    }
+}
 
-        let bitmapRep = NSBitmapImageRep(cgImage: cgImage)
-        guard let pngData = bitmapRep.representation(using: .png, properties: [:]) else {
-            onError?(ScreenCaptureError.imageConversionFailed)
-            return
-        }
-        onFrame?(pngData)
+// MARK: - SCStreamDelegate
+
+private final class SingleFrameCaptureDelegate: NSObject, SCStreamDelegate {
+    var onStreamError: (@Sendable (Error) -> Void)?
+
+    func stream(_ stream: SCStream, didStopWithError error: Error) {
+        onStreamError?(error)
     }
 }
 
