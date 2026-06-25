@@ -191,6 +191,10 @@ public enum RenJistrolyStrings {
         "settingsProjectNotDetected": "No project detected",
         "settingsRequest": "Request",
         "settingsOpenSettings": "Settings",
+
+        "agentTaskFlow": "Agent Task Flow",
+        "agentTaskFlowSubtitle": "Step-by-step task progress and observations",
+        "noActiveRun": "No active task run",
     ]
 
     private static let zh: [String: String] = [
@@ -369,5 +373,9 @@ public enum RenJistrolyStrings {
         "settingsProjectNotDetected": "未检测到项目",
         "settingsRequest": "请求",
         "settingsOpenSettings": "设置",
+
+        "agentTaskFlow": "Agent 任务流",
+        "agentTaskFlowSubtitle": "逐步查看任务进度与观察记录",
+        "noActiveRun": "暂无活跃任务",
     ]
 }
